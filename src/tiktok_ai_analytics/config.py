@@ -54,6 +54,10 @@ class Settings:
     canva_access_token: str
     canva_refresh_token: str
 
+    # AI keys
+    gemini_api_key: str
+    openai_api_key: str
+
 
 def load_settings() -> Settings:
     return Settings(
@@ -91,6 +95,8 @@ def load_settings() -> Settings:
         ),
         canva_access_token=os.getenv("CANVA_ACCESS_TOKEN", ""),
         canva_refresh_token=os.getenv("CANVA_REFRESH_TOKEN", ""),
+        gemini_api_key=os.getenv("GOOGLE_GEMINI_API_KEY", ""),
+        openai_api_key=os.getenv("OPENAI_API_KEY", ""),
     )
 
 

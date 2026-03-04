@@ -8,6 +8,7 @@ import sys
 from .auth import TikTokAuthClient
 from .canva_auth import CanvaAuthClient
 from .canva_client import CanvaClient
+from .content_engine import ContentEngine
 from .config import load_settings
 from .db import initialize_schema
 from .env_store import upsert_env_values
@@ -231,6 +232,41 @@ def _cmd_canva_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_content_brief(args: argparse.Namespace) -> int:
+    engine = ContentEngine()
+    print("Analysing reels and performance data...")
+    brief = engine.generate_daily_brief(design_id=args.design_id or None)
+
+    print("\n" + "═" * 60)
+    print(f"  TODAY'S CONTENT BRIEF")
+    print("═" * 60)
+    print(f"  Reel page  : #{brief.page_index} of 367")
+    print(f"  Theme      : {brief.theme}")
+    print(f"  Mood       : {brief.mood}")
+    print(f"  Hook idea  : {brief.hook_suggestion}")
+    print(f"  Why chosen : {brief.rationale}")
+    print("─" * 60)
+    print(f"\nCAPTION:\n{brief.caption}")
+    print(f"\n{brief.hashtags}")
+    print("═" * 60)
+    print(f"\nThumbnail preview:\n{brief.thumbnail_url}\n")
+
+    if args.export:
+        from pathlib import Path
+        from .canva_client import CanvaClient
+        settings = load_settings()
+        client = CanvaClient(access_token=settings.canva_access_token, settings=settings)
+        print(f"Exporting page {brief.page_index} as mp4...")
+        out = client.export_design(
+            design_id=args.design_id or ContentEngine.DESIGN_ID,
+            export_format="mp4",
+            output_dir=Path("exports"),
+        )
+        print(f"Saved: {out}")
+
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="TikTok AI Analytics CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -281,6 +317,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_canva_export.add_argument("--format", default="mp4", choices=["mp4", "gif", "jpg", "png", "pdf"])
     p_canva_export.add_argument("--output-dir", default="exports")
 
+    p_brief = sub.add_parser("content-brief", help="Pick today's reel + generate caption & hashtags")
+    p_brief.add_argument("--design-id", default=None, help="Override Canva design ID")
+    p_brief.add_argument("--export", action="store_true", help="Also export the chosen page as MP4")
+
     return parser
 
 
@@ -299,6 +339,7 @@ def main(argv: list[str] | None = None) -> int:
         "canva-exchange-code": _cmd_canva_exchange_code,
         "canva-list-designs": _cmd_canva_list_designs,
         "canva-export": _cmd_canva_export,
+        "content-brief": _cmd_content_brief,
     }
 
     return dispatch[args.command](args)
