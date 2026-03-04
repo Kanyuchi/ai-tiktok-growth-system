@@ -6,6 +6,8 @@ from pathlib import Path
 import sys
 
 from .auth import TikTokAuthClient
+from .canva_auth import CanvaAuthClient
+from .canva_client import CanvaClient
 from .config import load_settings
 from .db import initialize_schema
 from .env_store import upsert_env_values
@@ -13,6 +15,7 @@ from .etl.pipeline import run_daily_pipeline
 from .etl.tiktok_client import TikTokClient
 
 OAUTH_SESSION_FILE = Path(".oauth_session.json")
+CANVA_SESSION_FILE = Path(".canva_session.json")
 
 
 def setup_db() -> None:
@@ -138,6 +141,96 @@ def _cmd_run_daily(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_canva_auth_url(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    if not settings.canva_client_id:
+        print("Missing CANVA_CLIENT_ID in .env")
+        return 1
+
+    client = CanvaAuthClient(settings)
+    code_verifier = client.generate_code_verifier()
+    code_challenge = client.code_challenge_from_verifier(code_verifier)
+    url, state = client.build_authorize_url(code_challenge=code_challenge)
+
+    CANVA_SESSION_FILE.write_text(
+        json.dumps({"state": state, "code_verifier": code_verifier}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    print(f"State: {state}")
+    print(f"Redirect URI: {settings.canva_redirect_uri}")
+    print(f"Saved PKCE session to {CANVA_SESSION_FILE}")
+    print("\nOpen this URL in your browser and authorize:")
+    print(url)
+    return 0
+
+
+def _cmd_canva_exchange_code(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    client = CanvaAuthClient(settings)
+
+    code_verifier = args.code_verifier
+    if not code_verifier and CANVA_SESSION_FILE.exists():
+        session_data = json.loads(CANVA_SESSION_FILE.read_text(encoding="utf-8"))
+        code_verifier = session_data.get("code_verifier")
+
+    if not code_verifier:
+        print("Missing PKCE code_verifier. Run `canva-auth-url` first.")
+        return 1
+
+    bundle = client.exchange_code_for_tokens(code=args.code, code_verifier=code_verifier)
+    print("Canva access token received.")
+    print(f"expires_in: {bundle.expires_in}")
+
+    if args.save:
+        upsert_env_values({
+            "CANVA_ACCESS_TOKEN": bundle.access_token,
+            "CANVA_REFRESH_TOKEN": bundle.refresh_token,
+        })
+        print("Saved CANVA_ACCESS_TOKEN and CANVA_REFRESH_TOKEN into .env")
+    return 0
+
+
+def _cmd_canva_list_designs(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    if not settings.canva_access_token:
+        print("Missing CANVA_ACCESS_TOKEN — run `canva-auth-url` first.")
+        return 1
+
+    client = CanvaClient(access_token=settings.canva_access_token, settings=settings)
+    designs = client.list_designs(query=args.query, limit=args.limit)
+
+    if not designs:
+        print("No designs found.")
+        return 0
+
+    print(f"{'ID':<30} {'Updated':<12} {'Title'}")
+    print("-" * 80)
+    for d in designs:
+        updated = d.updated_at.strftime("%Y-%m-%d") if d.updated_at else "—"
+        print(f"{d.design_id:<30} {updated:<12} {d.title}")
+
+    print(f"\n{len(designs)} design(s) returned.")
+    return 0
+
+
+def _cmd_canva_export(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    if not settings.canva_access_token:
+        print("Missing CANVA_ACCESS_TOKEN — run `canva-auth-url` first.")
+        return 1
+
+    client = CanvaClient(access_token=settings.canva_access_token, settings=settings)
+    print(f"Exporting design {args.design_id} as {args.format} …")
+    output_path = client.export_design(
+        design_id=args.design_id,
+        export_format=args.format,
+        output_dir=Path(args.output_dir),
+    )
+    print(f"Saved to: {output_path}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="TikTok AI Analytics CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -171,6 +264,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="Do not write refreshed tokens back to .env",
     )
 
+    # ── Canva commands ────────────────────────────────────────────────────────
+    sub.add_parser("canva-auth-url", help="Generate Canva OAuth authorization URL")
+
+    p_canva_ex = sub.add_parser("canva-exchange-code", help="Exchange Canva OAuth code for tokens")
+    p_canva_ex.add_argument("--code", required=True, help="OAuth code from Canva redirect")
+    p_canva_ex.add_argument("--code-verifier", default=None)
+    p_canva_ex.add_argument("--save", action="store_true", help="Save tokens into .env")
+
+    p_canva_list = sub.add_parser("canva-list-designs", help="List Canva designs")
+    p_canva_list.add_argument("--query", default=None, help="Search query")
+    p_canva_list.add_argument("--limit", type=int, default=20)
+
+    p_canva_export = sub.add_parser("canva-export", help="Export a Canva design")
+    p_canva_export.add_argument("--design-id", required=True)
+    p_canva_export.add_argument("--format", default="mp4", choices=["mp4", "gif", "jpg", "png", "pdf"])
+    p_canva_export.add_argument("--output-dir", default="exports")
+
     return parser
 
 
@@ -185,6 +295,10 @@ def main(argv: list[str] | None = None) -> int:
         "refresh-token": _cmd_refresh_token,
         "check": _cmd_check,
         "run-daily": _cmd_run_daily,
+        "canva-auth-url": _cmd_canva_auth_url,
+        "canva-exchange-code": _cmd_canva_exchange_code,
+        "canva-list-designs": _cmd_canva_list_designs,
+        "canva-export": _cmd_canva_export,
     }
 
     return dispatch[args.command](args)

@@ -46,6 +46,14 @@ class Settings:
     tiktok_page_size: int
     tiktok_max_videos_per_run: int
 
+    # Canva Connect API
+    canva_client_id: str
+    canva_client_secret: str
+    canva_redirect_uri: str
+    canva_scopes: str
+    canva_access_token: str
+    canva_refresh_token: str
+
 
 def load_settings() -> Settings:
     return Settings(
@@ -74,6 +82,15 @@ def load_settings() -> Settings:
         ),
         tiktok_page_size=_to_int(os.getenv("TIKTOK_PAGE_SIZE"), 20),
         tiktok_max_videos_per_run=_to_int(os.getenv("TIKTOK_MAX_VIDEOS_PER_RUN"), 200),
+        canva_client_id=os.getenv("CANVA_CLIENT_ID", ""),
+        canva_client_secret=os.getenv("CANVA_CLIENT_SECRET", ""),
+        canva_redirect_uri=os.getenv("CANVA_REDIRECT_URI", "http://127.0.0.1:3001/callback"),
+        canva_scopes=os.getenv(
+            "CANVA_SCOPES",
+            "design:meta:read design:content:read design:content:write asset:read asset:write",
+        ),
+        canva_access_token=os.getenv("CANVA_ACCESS_TOKEN", ""),
+        canva_refresh_token=os.getenv("CANVA_REFRESH_TOKEN", ""),
     )
 
 
