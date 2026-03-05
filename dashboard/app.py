@@ -157,6 +157,10 @@ with st.sidebar:
                       label_visibility="collapsed")
 
     st.markdown("---")
+    st.markdown('<p class="section-label">Export</p>', unsafe_allow_html=True)
+    export_placeholder = st.empty()
+
+    st.markdown("---")
     st.markdown(
         f'<p style="font-size:0.7rem;color:{MUTED}">Auto-refreshes daily at 09:00 · '
         f'Powered by <span style="color:{PINK}">AI</span></p>',
@@ -304,7 +308,7 @@ with col_left:
         yaxis=AXIS,
         legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
-    st.plotly_chart(fig_trend, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig_trend, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
 
 with col_right:
     st.markdown(
@@ -333,7 +337,7 @@ with col_right:
         yaxis={**AXIS, "autorange": "reversed"},
         legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
-    st.plotly_chart(fig_eng, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig_eng, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
 
 # ── Row 2: Scatter + Format breakdown ────────────────────────────────────────
 col_a, col_b = st.columns([2, 1], gap="large")
@@ -367,7 +371,7 @@ with col_a:
         yaxis={**AXIS, "title": "Engagement %"},
         legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
-    st.plotly_chart(fig_scatter, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig_scatter, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
 
 with col_b:
     st.markdown('<p class="section-label">Content Format Mix</p>', unsafe_allow_html=True)
@@ -392,7 +396,7 @@ with col_b:
         showlegend=True,
         legend=dict(bgcolor="rgba(0,0,0,0)", orientation="v", x=1.0, y=0.5),
     )
-    st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig_pie, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
 
 # ── Row 3: Top posts leaderboard ─────────────────────────────────────────────
 st.markdown("---")
@@ -475,7 +479,7 @@ with col_hash:
             yaxis={**AXIS, "autorange": "reversed"},
             legend=dict(bgcolor="rgba(0,0,0,0)"),
         )
-        st.plotly_chart(fig_hash, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig_hash, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
     else:
         st.info("No hashtag data yet.")
 
@@ -502,7 +506,85 @@ with col_daily:
         yaxis=AXIS,
         legend=dict(bgcolor="rgba(0,0,0,0)", orientation="h", y=-0.2),
     )
-    st.plotly_chart(fig_daily, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig_daily, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
+
+# ── Sidebar exports (filled after data is ready) ─────────────────────────────
+def _build_html_report(summary: pd.DataFrame, period: str, total_views: int,
+                       total_likes: int, total_shares: int, avg_eng: float) -> str:
+    rows = ""
+    for i, r in summary.head(10).iterrows():
+        hook = (r["hook_text"] or r["caption"] or r["post_id"])[:60]
+        rows += f"""
+        <tr>
+          <td>#{i+1}</td>
+          <td>{hook}</td>
+          <td>{r['total_views']:,}</td>
+          <td>{r['total_likes']:,}</td>
+          <td>{r['total_shares']:,}</td>
+          <td>{r['engagement_rate']:.2%}</td>
+        </tr>"""
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>AI TikTok Growth System — Performance Report</title>
+<style>
+  body {{ font-family: Inter, sans-serif; background: #0D0D0D; color: #F0F0F0; padding: 40px; }}
+  h1 {{ background: linear-gradient(90deg,#FF2D6B,#0095F6,#00C6C6);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        font-size: 2rem; margin-bottom: 4px; }}
+  .sub {{ color: #888; font-size: 0.85rem; margin-bottom: 32px; }}
+  .kpis {{ display: flex; gap: 20px; margin-bottom: 32px; flex-wrap: wrap; }}
+  .kpi {{ background: #161616; border: 1px solid #2A2A2A; border-radius: 12px;
+           padding: 16px 24px; min-width: 140px; }}
+  .kpi-label {{ font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }}
+  .kpi-value {{ font-size: 1.8rem; font-weight: 900; color: #F0F0F0; }}
+  table {{ width: 100%; border-collapse: collapse; margin-top: 8px; }}
+  th {{ text-align: left; padding: 10px 12px; background: #161616;
+        color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }}
+  td {{ padding: 10px 12px; border-bottom: 1px solid #2A2A2A; font-size: 0.85rem; }}
+  tr:hover td {{ background: #1a1a1a; }}
+  .footer {{ margin-top: 40px; color: #555; font-size: 0.75rem; text-align: center; }}
+</style></head><body>
+<h1>AI TikTok Growth System</h1>
+<p class="sub">Performance Report · {period} · Generated {date.today()}</p>
+<div class="kpis">
+  <div class="kpi"><div class="kpi-label">Total Views</div><div class="kpi-value">{total_views:,}</div></div>
+  <div class="kpi"><div class="kpi-label">Total Likes</div><div class="kpi-value">{total_likes:,}</div></div>
+  <div class="kpi"><div class="kpi-label">Total Shares</div><div class="kpi-value">{total_shares:,}</div></div>
+  <div class="kpi"><div class="kpi-label">Avg Engagement</div><div class="kpi-value">{avg_eng:.2%}</div></div>
+  <div class="kpi"><div class="kpi-label">Posts Tracked</div><div class="kpi-value">{len(summary)}</div></div>
+</div>
+<h2 style="font-size:1rem;color:#888;text-transform:uppercase;letter-spacing:2px;">Top 10 Posts</h2>
+<table>
+  <thead><tr><th>#</th><th>Hook / Caption</th><th>Views</th><th>Likes</th><th>Shares</th><th>Engagement</th></tr></thead>
+  <tbody>{rows}</tbody>
+</table>
+<div class="footer">AI TikTok Growth System · Data as of {date.today()}</div>
+</body></html>"""
+
+csv_bytes = summary[[
+    "post_id", "caption", "total_views", "total_likes", "total_comments",
+    "total_shares", "engagement_rate", "format_type", "posted_at"
+]].to_csv(index=False).encode("utf-8")
+
+html_report = _build_html_report(
+    summary, period, total_views, total_likes, total_shares, avg_eng
+).encode("utf-8")
+
+with export_placeholder:
+    st.download_button(
+        "⬇ Download CSV",
+        data=csv_bytes,
+        file_name=f"tiktok_analytics_{date.today()}.csv",
+        mime="text/csv",
+        use_container_width=True,
+    )
+st.sidebar.download_button(
+    "⬇ Download Report (HTML)",
+    data=html_report,
+    file_name=f"tiktok_report_{date.today()}.html",
+    mime="text/html",
+    use_container_width=True,
+)
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("---")

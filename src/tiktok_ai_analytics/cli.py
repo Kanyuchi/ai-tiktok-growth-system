@@ -286,6 +286,14 @@ def _cmd_content_brief(args: argparse.Namespace) -> int:
         )
         print(f"Saved: {out}")
 
+        # Save caption + hashtags as a text file next to the MP4
+        caption_file = out.with_suffix(".txt")
+        caption_file.write_text(
+            f"CAPTION:\n{brief.caption}\n\n{brief.hashtags}\n",
+            encoding="utf-8",
+        )
+        print(f"Caption saved: {caption_file}")
+
     return 0
 
 
