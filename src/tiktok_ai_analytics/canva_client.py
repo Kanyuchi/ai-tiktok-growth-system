@@ -66,15 +66,22 @@ class CanvaClient:
         design_id: str,
         export_format: str = "mp4",
         output_dir: Path | str = ".",
+        pages: list[int] | None = None,
     ) -> Path:
         """
         Create an export job for a design and download the result.
         Supported formats: mp4, gif, jpg, png, pdf
+        Pass pages=[n] to export only a specific page (1-indexed).
         Returns the path to the downloaded file.
         """
+        fmt: dict = {"type": export_format}
+        if export_format == "mp4":
+            fmt["quality"] = "vertical_1080p"
+        if pages:
+            fmt["pages"] = pages
         payload = {
             "design_id": design_id,
-            "format": {"type": export_format},
+            "format": fmt,
         }
         job = self._request("POST", "/exports", json=payload)
         job_id = job.get("job", {}).get("id")
@@ -91,7 +98,8 @@ class CanvaClient:
                 if not urls:
                     raise CanvaApiError("Export succeeded but no download URLs returned")
                 download_url = urls[0]
-                return self._download_file(download_url, design_id, export_format, Path(output_dir))
+                page_tag = f"_p{pages[0]}" if pages and len(pages) == 1 else ""
+                return self._download_file(download_url, design_id + page_tag, export_format, Path(output_dir))
             elif state == "failed":
                 raise CanvaApiError(f"Export job failed: {job_data.get('error')}")
             time.sleep(3)

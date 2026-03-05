@@ -66,10 +66,7 @@ class ContentEngine:
             self._reset_schedule(design_id)
             unused = self._get_unused_pages(design_id)
 
-        # 3. Pick candidate pages to analyse (sample up to 8 for speed/cost)
-        candidates = random.sample(unused, min(8, len(unused)))
-
-        # 4. Fetch ALL pages (paginated) then look up candidate thumbnails
+        # 3. Fetch ALL available pages (paginated) from Canva
         from .canva_client import CanvaClient
         canva = CanvaClient(
             access_token=self.settings.canva_access_token,
@@ -87,6 +84,18 @@ class ContentEngine:
             continuation = pages_data.get("continuation")
             if not continuation:
                 break
+
+        print(f"[ENGINE] Canva returned {len(all_pages)} pages.")
+
+        # Intersect unused DB list with pages actually available from Canva API
+        available_unused = sorted(set(unused) & set(all_pages.keys()))
+        if not available_unused:
+            print("[ENGINE] No unused pages available from Canva — resetting schedule.")
+            self._reset_schedule(design_id)
+            available_unused = sorted(all_pages.keys())
+
+        # 4. Pick candidate pages to analyse (sample up to 8 for speed/cost)
+        candidates = random.sample(available_unused, min(8, len(available_unused)))
 
         analysed = []
         for page_idx in candidates:

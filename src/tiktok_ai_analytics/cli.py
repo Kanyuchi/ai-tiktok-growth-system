@@ -192,6 +192,27 @@ def _cmd_canva_exchange_code(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_canva_refresh_token(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    refresh_token = args.refresh_token or settings.canva_refresh_token
+    if not refresh_token:
+        print("Missing refresh token. Set CANVA_REFRESH_TOKEN in .env or pass --refresh-token")
+        return 1
+
+    client = CanvaAuthClient(settings)
+    bundle = client.refresh_access_token(refresh_token=refresh_token)
+    print("Canva token refreshed.")
+    print(f"expires_in: {bundle.expires_in}s (~{bundle.expires_in // 3600}h)")
+
+    if args.save:
+        upsert_env_values({
+            "CANVA_ACCESS_TOKEN": bundle.access_token,
+            "CANVA_REFRESH_TOKEN": bundle.refresh_token,
+        })
+        print("Saved CANVA_ACCESS_TOKEN and CANVA_REFRESH_TOKEN into .env")
+    return 0
+
+
 def _cmd_canva_list_designs(args: argparse.Namespace) -> int:
     settings = load_settings()
     if not settings.canva_access_token:
@@ -261,9 +282,76 @@ def _cmd_content_brief(args: argparse.Namespace) -> int:
             design_id=args.design_id or ContentEngine.DESIGN_ID,
             export_format="mp4",
             output_dir=Path("exports"),
+            pages=[brief.page_index],
         )
         print(f"Saved: {out}")
 
+    return 0
+
+
+def _cmd_post_reel(args: argparse.Namespace) -> int:
+    """Generate a content brief, export the chosen page, then post to TikTok."""
+    from pathlib import Path
+    from .canva_client import CanvaClient
+    from .content_engine import ContentEngine
+    from .tiktok_poster import TikTokPoster
+
+    settings = load_settings()
+
+    if not settings.tiktok_access_token:
+        print("Missing TIKTOK_ACCESS_TOKEN — run `auth-url` and `exchange-code` first.")
+        return 1
+    if not settings.canva_access_token:
+        print("Missing CANVA_ACCESS_TOKEN — run `canva-auth-url` first.")
+        return 1
+
+    # Step 1: Generate content brief
+    print("Step 1/3 — Generating content brief...")
+    engine = ContentEngine(settings=settings)
+    brief = engine.generate_daily_brief(design_id=args.design_id or None)
+
+    full_caption = brief.caption + "\n\n" + brief.hashtags
+
+    print("\n" + "═" * 60)
+    print("  CONTENT BRIEF")
+    print("═" * 60)
+    print(f"  Reel page  : #{brief.page_index} of 367")
+    print(f"  Theme      : {brief.theme}")
+    print(f"  Mood       : {brief.mood}")
+    print("─" * 60)
+    print(f"\nCAPTION:\n{brief.caption}")
+    print(f"\n{brief.hashtags}")
+    print("═" * 60 + "\n")
+
+    if args.dry_run:
+        print("[DRY RUN] Skipping export and post. Brief generated successfully.")
+        return 0
+
+    # Step 2: Export the chosen page as MP4
+    print(f"Step 2/3 — Exporting page #{brief.page_index} from Canva...")
+    canva = CanvaClient(access_token=settings.canva_access_token, settings=settings)
+    design_id = args.design_id or ContentEngine.DESIGN_ID
+    video_path = canva.export_design(
+        design_id=design_id,
+        export_format="mp4",
+        output_dir=Path("exports"),
+        pages=[brief.page_index],
+    )
+    print(f"Video saved: {video_path}")
+
+    # Step 3: Post to TikTok
+    print("Step 3/3 — Posting to TikTok...")
+    poster = TikTokPoster(access_token=settings.tiktok_access_token, settings=settings)
+    result = poster.post_video(
+        video_path=video_path,
+        caption=full_caption,
+        privacy_level=args.privacy,
+    )
+
+    print("\n" + "✓" * 60)
+    print(f"  Posted! publish_id: {result.publish_id}")
+    print(f"  Status: {result.status}")
+    print("✓" * 60)
     return 0
 
 
@@ -308,6 +396,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_canva_ex.add_argument("--code-verifier", default=None)
     p_canva_ex.add_argument("--save", action="store_true", help="Save tokens into .env")
 
+    p_canva_refresh = sub.add_parser("canva-refresh-token", help="Refresh Canva access token")
+    p_canva_refresh.add_argument("--refresh-token", default=None, help="Override refresh token")
+    p_canva_refresh.add_argument("--save", action="store_true", help="Save refreshed tokens into .env")
+
     p_canva_list = sub.add_parser("canva-list-designs", help="List Canva designs")
     p_canva_list.add_argument("--query", default=None, help="Search query")
     p_canva_list.add_argument("--limit", type=int, default=20)
@@ -320,6 +412,23 @@ def build_parser() -> argparse.ArgumentParser:
     p_brief = sub.add_parser("content-brief", help="Pick today's reel + generate caption & hashtags")
     p_brief.add_argument("--design-id", default=None, help="Override Canva design ID")
     p_brief.add_argument("--export", action="store_true", help="Also export the chosen page as MP4")
+
+    p_post = sub.add_parser(
+        "post-reel",
+        help="Full pipeline: generate brief → export page → post to TikTok",
+    )
+    p_post.add_argument("--design-id", default=None, help="Override Canva design ID")
+    p_post.add_argument(
+        "--privacy",
+        default="PUBLIC_TO_EVERYONE",
+        choices=["PUBLIC_TO_EVERYONE", "MUTUAL_FOLLOW_FRIENDS", "FOLLOWER_OF_CREATOR", "SELF_ONLY"],
+        help="TikTok post privacy level",
+    )
+    p_post.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Generate the brief only — skip export and posting",
+    )
 
     return parser
 
@@ -337,9 +446,11 @@ def main(argv: list[str] | None = None) -> int:
         "run-daily": _cmd_run_daily,
         "canva-auth-url": _cmd_canva_auth_url,
         "canva-exchange-code": _cmd_canva_exchange_code,
+        "canva-refresh-token": _cmd_canva_refresh_token,
         "canva-list-designs": _cmd_canva_list_designs,
         "canva-export": _cmd_canva_export,
         "content-brief": _cmd_content_brief,
+        "post-reel": _cmd_post_reel,
     }
 
     return dispatch[args.command](args)

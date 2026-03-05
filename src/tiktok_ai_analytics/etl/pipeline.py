@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy import text
 
 from ..auth import TikTokAuthClient
+from ..canva_auth import CanvaAuthClient
 from ..config import load_settings
 from ..db import get_engine
 from ..env_store import upsert_env_values
@@ -30,6 +31,18 @@ def run_daily_pipeline(max_videos: int | None = None, persist_tokens: bool = Tru
                 }
             )
             print("[AUTH] Refreshed tokens and updated .env")
+
+    # Auto-refresh Canva token (expires every 4h — always refresh before pipeline)
+    if settings.canva_refresh_token and persist_tokens:
+        try:
+            canva_refreshed = CanvaAuthClient(settings).refresh_access_token(settings.canva_refresh_token)
+            upsert_env_values({
+                "CANVA_ACCESS_TOKEN": canva_refreshed.access_token,
+                "CANVA_REFRESH_TOKEN": canva_refreshed.refresh_token,
+            })
+            print("[AUTH] Canva token refreshed and updated .env")
+        except Exception as e:
+            print(f"[AUTH] Canva token refresh failed (continuing): {e}")
 
     if not access_token:
         raise RuntimeError(
