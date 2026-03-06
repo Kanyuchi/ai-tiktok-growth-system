@@ -41,7 +41,7 @@ class ContentBrief:
 
 
 class ContentEngine:
-    DESIGN_ID = "DAHC1GogVkU"  # Copy of 375 Noir Reels
+    DESIGN_ID = "DAHDMe96N3M"
 
     def __init__(self, settings: Settings | None = None) -> None:
         self.settings = settings or load_settings()
@@ -313,8 +313,8 @@ class ContentEngine:
                     {"did": design_id},
                 ).fetchall()
             }
-        # Design has 367 pages (1-indexed)
-        all_pages = set(range(1, 368))
+        # Design has up to 400 pages — use actual API range
+        all_pages = set(range(1, 401))
         return sorted(all_pages - used)
 
     def _reset_schedule(self, design_id: str) -> None:
