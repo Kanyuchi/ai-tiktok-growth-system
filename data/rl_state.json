@@ -1,0 +1,182 @@
+{
+  "theme_arms": {
+    "luxury": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "mindset": {
+      "alpha": 1.0114891013131346,
+      "beta": 1.9885108986868654,
+      "pulls": 1,
+      "total_reward": 0.01148910131313468
+    },
+    "motivation": {
+      "alpha": 1.1839513032935947,
+      "beta": 1.8160486967064053,
+      "pulls": 1,
+      "total_reward": 0.18395130329359466
+    },
+    "softlife": {
+      "alpha": 1.2922729752715951,
+      "beta": 1.7077270247284049,
+      "pulls": 1,
+      "total_reward": 0.29227297527159524
+    },
+    "pov": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "relationship": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "success": {
+      "alpha": 1.7643564356435644,
+      "beta": 1.2356435643564356,
+      "pulls": 1,
+      "total_reward": 0.7643564356435644
+    },
+    "aesthetic": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "feminine_energy": {
+      "alpha": 1.6639979492607417,
+      "beta": 1.3360020507392583,
+      "pulls": 1,
+      "total_reward": 0.6639979492607416
+    }
+  },
+  "hook_style_arms": {
+    "question": {
+      "alpha": 1.0114891013131346,
+      "beta": 1.9885108986868654,
+      "pulls": 1,
+      "total_reward": 0.01148910131313468
+    },
+    "third_person_narrative": {
+      "alpha": 1.9562709245323369,
+      "beta": 2.043729075467663,
+      "pulls": 2,
+      "total_reward": 0.9562709245323369
+    },
+    "direct_address": {
+      "alpha": 1.1839513032935947,
+      "beta": 1.8160486967064053,
+      "pulls": 1,
+      "total_reward": 0.18395130329359466
+    },
+    "reframe_statement": {
+      "alpha": 1.7643564356435644,
+      "beta": 1.2356435643564356,
+      "pulls": 1,
+      "total_reward": 0.7643564356435644
+    },
+    "pov_statement": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "bold_claim": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    }
+  },
+  "mood_arms": {
+    "empowering": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "calm": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "bold": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "mysterious": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "serene": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "aspirational": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "confident": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    },
+    "reflective": {
+      "alpha": 1.0,
+      "beta": 1.0,
+      "pulls": 0,
+      "total_reward": 0.0
+    }
+  },
+  "benchmarks": {
+    "avg_views": 492.6,
+    "avg_watch_time": 3.18,
+    "avg_completion_pct": 6.659999999999999,
+    "avg_followers_per_video": 1.2,
+    "total_videos_analysed": 5,
+    "best_composite_video": "v5_quiet_wins"
+  },
+  "audience_profile": {
+    "gender_avg": {
+      "female": 82.2,
+      "male": 16.6,
+      "other": 1.2
+    },
+    "core_age_bracket": "25-34",
+    "core_age_pct": 46.6,
+    "secondary_age_bracket": "18-24",
+    "secondary_age_pct": 30.4,
+    "top_countries": [
+      "Germany",
+      "United Kingdom",
+      "Poland"
+    ],
+    "top_countries_combined_pct": 52.0
+  },
+  "retention_insights": {
+    "universal_drop_off_second": 2,
+    "implication": "First 2 seconds decide everything \u2014 hook must be visually and textually arresting"
+  },
+  "interaction_rewards": {
+    "mindset:question": 0.01148910131313468,
+    "feminine_energy:third_person_narrative": 0.6639979492607416,
+    "motivation:direct_address": 0.18395130329359466,
+    "softlife:third_person_narrative": 0.29227297527159524,
+    "success:reframe_statement": 0.7643564356435644
+  }
+}

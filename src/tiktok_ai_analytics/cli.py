@@ -438,7 +438,71 @@ def build_parser() -> argparse.ArgumentParser:
         help="Generate the brief only — skip export and posting",
     )
 
+    p_mark = sub.add_parser("mark-posted", help="Mark a Canva page as posted to TikTok")
+    p_mark.add_argument("--page", type=int, required=True, help="Page index to mark as posted")
+    p_mark.add_argument("--design-id", default=None, help="Override Canva design ID")
+
+    sub.add_parser("rl-train", help="Train RL model from video watch matrix data")
+    sub.add_parser("rl-status", help="Show RL model state and feature rankings")
+
     return parser
+
+
+def _cmd_mark_posted(args: argparse.Namespace) -> int:
+    from .content_engine import ContentEngine
+    from .db import get_engine
+    from sqlalchemy import text
+
+    design_id = args.design_id or ContentEngine.DESIGN_ID
+    engine = get_engine()
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "UPDATE canva_post_schedule SET status='posted' "
+                "WHERE design_id=:did AND page_index=:p"
+            ),
+            {"did": design_id, "p": args.page},
+        )
+    print(f"Page #{args.page} of design {design_id} marked as posted.")
+    return 0
+
+
+def _cmd_rl_train(args: argparse.Namespace) -> int:
+    from .reinforcement import initialise_rl
+    result = initialise_rl()
+    print(f"\n[RL] Trained on {result['videos_processed']} videos")
+    print(f"[RL] Best composite video: {result['benchmarks']['best_composite_video']}")
+    print("\n[RL] Reward breakdown:")
+    for v in result["rewards"]:
+        print(f"  {v['video_id']:30s} theme={v['theme']:18s} reward={v['reward']:.4f}")
+    print(f"\n[RL] Recommended features for next post:")
+    for k, v in result["top_features"].items():
+        print(f"  {k}: {v}")
+    print("\n[RL] Feature rankings (posterior mean):")
+    for category, items in result["rankings"].items():
+        print(f"  {category}:")
+        for name, score in items[:5]:
+            bar = "█" * int(score * 20)
+            print(f"    {name:25s} {score:.3f} {bar}")
+    return 0
+
+
+def _cmd_rl_status(args: argparse.Namespace) -> int:
+    from .reinforcement import ContentRL
+    rl = ContentRL.load()
+    rankings = rl.get_feature_rankings()
+    print("\n[RL] Current Model State")
+    print(f"  Benchmarks: {json.dumps(rl.benchmarks, indent=2)}")
+    print(f"  Audience: {json.dumps(rl.audience_profile, indent=2)}")
+    print(f"  Retention: {json.dumps(rl.retention_insights, indent=2)}")
+    print("\n[RL] Feature Rankings:")
+    for category, items in rankings.items():
+        print(f"  {category}:")
+        for name, score in items:
+            bar = "█" * int(score * 20)
+            print(f"    {name:25s} {score:.3f} {bar}")
+    print(f"\n[RL] Caption guidance:\n{rl.get_caption_guidance()}")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -459,6 +523,9 @@ def main(argv: list[str] | None = None) -> int:
         "canva-export": _cmd_canva_export,
         "content-brief": _cmd_content_brief,
         "post-reel": _cmd_post_reel,
+        "mark-posted": _cmd_mark_posted,
+        "rl-train": _cmd_rl_train,
+        "rl-status": _cmd_rl_status,
     }
 
     return dispatch[args.command](args)

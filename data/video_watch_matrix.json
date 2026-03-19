@@ -1,0 +1,310 @@
+{
+  "extracted_date": "2026-03-19",
+  "source": "TikTok Studio Analytics Screenshots",
+  "videos": [
+    {
+      "video_id": "v1_inner_peace",
+      "title": "Are you ready to embrace your inner peace? A calm mind attracts abundance...",
+      "posted_date": "2026-03-10",
+      "theme": "mindset",
+      "hook_style": "question",
+      "overview": {
+        "views": 278,
+        "total_play_time": "0h:10m:25s",
+        "total_play_seconds": 625,
+        "avg_watch_time_seconds": 2.14,
+        "watched_full_video_pct": 3.6,
+        "new_followers": 0
+      },
+      "retention": {
+        "drop_off_second": 2,
+        "note": "Most viewers stopped watching at 0:02"
+      },
+      "traffic_sources": {
+        "for_you": 97.9,
+        "other": 2.1,
+        "following": 0.0,
+        "direct_messages": 0.0,
+        "personal_profile": 0.0,
+        "sound": 0.0,
+        "search": 0.0
+      },
+      "engagement": {
+        "likes_timing": "Most viewers liked at 0:00",
+        "likes_trend_pct": -44,
+        "top_comment_words": []
+      },
+      "viewers": {
+        "total": 259,
+        "growth_vs_prior": 4,
+        "new_viewers_pct": 66,
+        "returning_viewers_pct": 34,
+        "non_followers_pct": 100,
+        "followers_pct": 0
+      },
+      "demographics": {
+        "gender": {"female": 87, "male": 13, "other": 0},
+        "age": {"18-24": 31, "25-34": 44, "35-44": 15, "45-54": 5}
+      },
+      "locations": {
+        "United Kingdom": 21.8,
+        "Germany": 13.2,
+        "Poland": 11.4,
+        "Netherlands": 6.1,
+        "Belgium": 5.4,
+        "Spain": 5.0
+      }
+    },
+    {
+      "video_id": "v2_living_desires",
+      "title": "She's not just dreaming; she's living her desires. She's done with waiting. S...",
+      "posted_date": "2026-03-12",
+      "theme": "feminine_energy",
+      "hook_style": "third_person_narrative",
+      "overview": {
+        "views": 270,
+        "total_play_time": "0h:16m:32s",
+        "total_play_seconds": 992,
+        "avg_watch_time_seconds": 3.66,
+        "watched_full_video_pct": 13.7,
+        "new_followers": 2
+      },
+      "retention": {
+        "drop_off_second": 1,
+        "note": "Most viewers stopped watching at 0:01"
+      },
+      "traffic_sources": {
+        "for_you": 97.8,
+        "other": 1.5,
+        "personal_profile": 0.7,
+        "following": 0.0,
+        "direct_messages": 0.0,
+        "sound": 0.0,
+        "search": 0.0
+      },
+      "engagement": {
+        "likes_timing": "Most viewers liked at 0:00",
+        "likes_trend_pct": -44,
+        "top_comment_words": []
+      },
+      "viewers": {
+        "total": 243,
+        "growth_vs_prior": 4,
+        "new_viewers_pct": 74,
+        "returning_viewers_pct": 26,
+        "non_followers_pct": 99,
+        "followers_pct": 1
+      },
+      "demographics": {
+        "gender": {"female": 81, "male": 18, "other": 1},
+        "age": {"18-24": 23, "25-34": 46, "35-44": 23}
+      },
+      "locations": {
+        "United Kingdom": 20.9,
+        "Germany": 13.0,
+        "Poland": 10.7,
+        "Denmark": 4.1,
+        "Croatia": 4.1,
+        "Romania": 4.1
+      }
+    },
+    {
+      "video_id": "v3_closer_than_you_think",
+      "title": "You're closer than you think. What you desire is already yours. Embrace the...",
+      "posted_date": "2026-03-16",
+      "theme": "motivation",
+      "hook_style": "direct_address",
+      "overview": {
+        "views": 252,
+        "total_play_time": "0h:12m:53s",
+        "total_play_seconds": 773,
+        "avg_watch_time_seconds": 2.94,
+        "watched_full_video_pct": 4.3,
+        "new_followers": 1
+      },
+      "retention": {
+        "drop_off_second": 2,
+        "note": "Most viewers stopped watching at 0:02"
+      },
+      "traffic_sources": {
+        "for_you": 94.8,
+        "other": 2.4,
+        "personal_profile": 2.0,
+        "search": 0.8,
+        "following": 0.0,
+        "direct_messages": 0.0,
+        "sound": 0.0
+      },
+      "search_queries": {"high value mindset": 100.0},
+      "engagement": {
+        "likes_timing": "Most viewers liked at 0:00",
+        "likes_trend_pct": 87,
+        "top_comment_words": []
+      },
+      "viewers": {
+        "total": 232,
+        "growth_vs_prior": 8,
+        "new_viewers_pct": 79,
+        "returning_viewers_pct": 21,
+        "non_followers_pct": 99,
+        "followers_pct": 1
+      },
+      "demographics": {
+        "gender": {"female": 80, "male": 19, "other": 1},
+        "age": {"18-24": 36, "25-34": 47, "35-44": 9}
+      },
+      "locations": {
+        "Poland": 21.7,
+        "United Kingdom": 15.0,
+        "Germany": 10.3,
+        "France": 5.5,
+        "Netherlands": 4.7,
+        "Belgium": 3.6
+      }
+    },
+    {
+      "video_id": "v4_stopped_settling",
+      "title": "She stopped settling for less. Manifest your dream life daily. Create a space...",
+      "posted_date": "2026-03-17",
+      "theme": "softlife",
+      "hook_style": "third_person_narrative",
+      "overview": {
+        "views": 794,
+        "total_play_time": "0h:29m:32s",
+        "total_play_seconds": 1772,
+        "avg_watch_time_seconds": 2.11,
+        "watched_full_video_pct": 4.8,
+        "new_followers": 1
+      },
+      "retention": {
+        "drop_off_second": 2,
+        "note": "Most viewers stopped watching at 0:02"
+      },
+      "traffic_sources": {
+        "for_you": 99.3,
+        "personal_profile": 0.5,
+        "other": 0.4,
+        "following": 0.0,
+        "direct_messages": 0.0,
+        "sound": 0.0,
+        "search": 0.0
+      },
+      "search_queries": {"tips_of_update_wait": null},
+      "engagement": {
+        "likes_timing": "Most viewers liked at 0:01",
+        "likes_trend_pct": -24,
+        "top_comment_words": ["tips_of_update_wait"]
+      },
+      "viewers": {
+        "total": 732,
+        "growth_vs_prior": 197,
+        "new_viewers_pct": 83,
+        "returning_viewers_pct": 17,
+        "non_followers_pct": 100,
+        "followers_pct": 0
+      },
+      "demographics": {
+        "gender": {"female": 83, "male": 17, "other": 0},
+        "age": {"18-24": 30, "25-34": 45, "35-44": 13, "45-54": 6, "55+": 6}
+      },
+      "locations": {
+        "Germany": 23.9,
+        "United Kingdom": 18.8,
+        "Poland": 10.4,
+        "France": 4.1,
+        "Netherlands": 4.1,
+        "Spain": 3.7,
+        "Italy": 3.6,
+        "Greece": 3.1,
+        "Austria": 3.0,
+        "Portugal": 2.7,
+        "Others": 22.6
+      }
+    },
+    {
+      "video_id": "v5_quiet_wins",
+      "title": "Success isn't just about the big milestones... it's about the quiet wins no one s...",
+      "posted_date": "2026-03-02",
+      "theme": "success",
+      "hook_style": "reframe_statement",
+      "overview": {
+        "views": 869,
+        "total_play_time": "1h:14m:58s",
+        "total_play_seconds": 4498,
+        "avg_watch_time_seconds": 5.05,
+        "watched_full_video_pct": 6.9,
+        "new_followers": 2
+      },
+      "retention": {
+        "drop_off_second": 2,
+        "note": "Most viewers stopped watching at 0:02"
+      },
+      "traffic_sources": {
+        "for_you": 97.0,
+        "personal_profile": 2.4,
+        "other": 0.6,
+        "sound": 0.0,
+        "following": 0.0,
+        "search": 0.0
+      },
+      "engagement": {
+        "likes_timing": "Most viewers liked at 0:00",
+        "likes_trend_pct": 52,
+        "top_comment_words": []
+      },
+      "viewers": {
+        "total": 802,
+        "growth_vs_prior": 9,
+        "new_viewers_pct": 90,
+        "returning_viewers_pct": 10,
+        "non_followers_pct": 100,
+        "followers_pct": 0
+      },
+      "demographics": {
+        "gender": {"female": 80, "male": 16, "other": 4},
+        "age": {"18-24": 32, "25-34": 51, "35-44": 12, "45-54": 3, "55+": 2}
+      },
+      "locations": {
+        "Germany": 22.4,
+        "United Kingdom": 10.5,
+        "Poland": 7.9,
+        "Belgium": 7.5,
+        "Netherlands": 7.0,
+        "Hungary": 3.8,
+        "France": 3.6,
+        "Italy": 3.5,
+        "Spain": 3.3,
+        "Switzerland": 3.0,
+        "Others": 27.4
+      }
+    }
+  ],
+  "aggregate_insights": {
+    "audience_profile": {
+      "gender_avg": {"female": 82.2, "male": 16.6, "other": 1.2},
+      "core_age_bracket": "25-34",
+      "core_age_pct": 46.6,
+      "secondary_age_bracket": "18-24",
+      "secondary_age_pct": 30.4,
+      "top_countries": ["Germany", "United Kingdom", "Poland"],
+      "top_countries_combined_pct": 52.0
+    },
+    "content_performance_ranking": {
+      "by_views": ["v5_quiet_wins", "v4_stopped_settling", "v1_inner_peace", "v2_living_desires", "v3_closer_than_you_think"],
+      "by_avg_watch_time": ["v5_quiet_wins", "v2_living_desires", "v3_closer_than_you_think", "v1_inner_peace", "v4_stopped_settling"],
+      "by_completion_rate": ["v2_living_desires", "v5_quiet_wins", "v4_stopped_settling", "v3_closer_than_you_think", "v1_inner_peace"],
+      "by_follower_conversion": ["v2_living_desires", "v5_quiet_wins", "v3_closer_than_you_think", "v4_stopped_settling", "v1_inner_peace"]
+    },
+    "retention_crisis": {
+      "universal_drop_off_second": 2,
+      "implication": "First 2 seconds decide everything — hook must be visually and textually arresting"
+    },
+    "winning_patterns": {
+      "best_theme": "success",
+      "best_hook_style": "reframe_statement",
+      "best_retention_theme": "feminine_energy",
+      "high_views_but_low_retention": "softlife with manifest framing",
+      "search_discoverable_queries": ["high value mindset"]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+CAPTION (RL-Optimised — 2026-03-19):
+Success isn't loud; it whispers in intention.
+Elevate your standards, not your volume.
+The quiet ones know their worth.
+Are you ready to level up your mindset?
+
+HASHTAGS: #LuxuryMindset #FeminineEnergy #Motivation #PersonalGrowth #SoftLife #WealthConsciousness #Abundance #EmpowerWomen
+
+---
+RL MODEL SELECTION:
+  Theme: success (posterior mean: 0.588, highest of all themes)
+  Hook style: reframe_statement (posterior mean: 0.588)
+  Mood: bold
+  Best interaction: success × reframe_statement = 0.7644 reward
+
+TRAINING DATA:
+  v5_quiet_wins:    reward=0.7644 (success × reframe_statement)  ← BEST
+  v2_living_desires: reward=0.6640 (feminine_energy × third_person_narrative)
+  v4_stopped_settling: reward=0.2923 (softlife × third_person_narrative)
+  v3_closer_than_you_think: reward=0.1840 (motivation × direct_address)
+  v1_inner_peace:   reward=0.0115 (mindset × question)  ← WORST
+
+AUDIENCE TARGET:
+  82% female, 25-34 years, Germany/UK/Poland
+  Critical: viewers drop at 2 seconds — hook must be a reframe that creates identity-match

@@ -508,6 +508,243 @@ with col_daily:
     )
     st.plotly_chart(fig_daily, use_container_width=True, config={"displayModeBar": "hover", "displaylogo": False, "modeBarButtonsToRemove": ["zoom2d","pan2d","select2d","lasso2d","resetScale2d","autoScale2d","zoomIn2d","zoomOut2d"]})
 
+# ── Row 5: RL Insights + Audience Demographics ──────────────────────────────
+st.markdown("---")
+st.markdown(
+    '<p class="gradient-title" style="font-size:1.3rem;">AI Reinforcement Learning Insights</p>'
+    f'<p style="color:{MUTED};font-size:0.8rem;margin-top:-8px;">'
+    'Thompson Sampling model trained on video watch matrix · Updates with each new video</p>',
+    unsafe_allow_html=True,
+)
+
+# Load RL state
+_rl_data_loaded = False
+try:
+    _rl_state_path = PROJECT_ROOT / "data" / "rl_state.json"
+    if _rl_state_path.exists():
+        import json as _json
+        _rl_state = _json.loads(_rl_state_path.read_text(encoding="utf-8"))
+        _rl_data_loaded = True
+except Exception:
+    pass
+
+if _rl_data_loaded:
+    col_rl1, col_rl2, col_rl3 = st.columns(3, gap="large")
+
+    with col_rl1:
+        st.markdown('<p class="section-label">Theme Performance (RL Posterior Mean)</p>', unsafe_allow_html=True)
+        theme_arms = _rl_state.get("theme_arms", {})
+        theme_data = sorted(
+            [(k, v["alpha"] / (v["alpha"] + v["beta"])) for k, v in theme_arms.items()],
+            key=lambda x: x[1], reverse=True,
+        )
+        if theme_data:
+            t_names = [t[0] for t in theme_data]
+            t_scores = [t[1] for t in theme_data]
+            fig_theme = go.Figure(go.Bar(
+                x=t_scores,
+                y=t_names,
+                orientation="h",
+                marker=dict(
+                    color=t_scores,
+                    colorscale=[[0, "#2A2A2A"], [0.5, BLUE], [1, PINK]],
+                    showscale=False,
+                ),
+                text=[f"{s:.3f}" for s in t_scores],
+                textposition="outside",
+                textfont=dict(color=WHITE, size=11),
+            ))
+            fig_theme.update_layout(
+                **PLOTLY_BASE,
+                height=280,
+                xaxis={**AXIS, "range": [0, 0.7], "title": "Posterior Mean"},
+                yaxis={**AXIS, "autorange": "reversed"},
+                legend=dict(bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_theme, use_container_width=True, config={"displayModeBar": False})
+
+    with col_rl2:
+        st.markdown('<p class="section-label">Hook Style Performance (RL)</p>', unsafe_allow_html=True)
+        hook_arms = _rl_state.get("hook_style_arms", {})
+        hook_data = sorted(
+            [(k, v["alpha"] / (v["alpha"] + v["beta"])) for k, v in hook_arms.items()],
+            key=lambda x: x[1], reverse=True,
+        )
+        if hook_data:
+            h_names = [h[0].replace("_", " ").title() for h in hook_data]
+            h_scores = [h[1] for h in hook_data]
+            fig_hook = go.Figure(go.Bar(
+                x=h_scores,
+                y=h_names,
+                orientation="h",
+                marker=dict(
+                    color=h_scores,
+                    colorscale=[[0, "#2A2A2A"], [0.5, TEAL], [1, ORANGE]],
+                    showscale=False,
+                ),
+                text=[f"{s:.3f}" for s in h_scores],
+                textposition="outside",
+                textfont=dict(color=WHITE, size=11),
+            ))
+            fig_hook.update_layout(
+                **PLOTLY_BASE,
+                height=280,
+                xaxis={**AXIS, "range": [0, 0.7], "title": "Posterior Mean"},
+                yaxis={**AXIS, "autorange": "reversed"},
+                legend=dict(bgcolor="rgba(0,0,0,0)"),
+            )
+            st.plotly_chart(fig_hook, use_container_width=True, config={"displayModeBar": False})
+
+    with col_rl3:
+        st.markdown('<p class="section-label">RL Model Summary</p>', unsafe_allow_html=True)
+        benchmarks = _rl_state.get("benchmarks", {})
+        audience = _rl_state.get("audience_profile", {})
+        retention = _rl_state.get("retention_insights", {})
+
+        st.markdown(f"""
+        <div style="background:{CARD};border:1px solid {BORDER};border-radius:14px;padding:20px;">
+          <p style="font-size:0.8rem;color:{MUTED};text-transform:uppercase;letter-spacing:1px;margin:0 0 12px 0;">Benchmarks</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><span style="color:{MUTED};font-size:0.75rem;">Avg Views</span><br>
+                 <span style="color:{WHITE};font-weight:800;font-size:1.1rem;">{benchmarks.get("avg_views", 0):.0f}</span></div>
+            <div><span style="color:{MUTED};font-size:0.75rem;">Avg Watch</span><br>
+                 <span style="color:{WHITE};font-weight:800;font-size:1.1rem;">{benchmarks.get("avg_watch_time", 0):.1f}s</span></div>
+            <div><span style="color:{MUTED};font-size:0.75rem;">Avg Completion</span><br>
+                 <span style="color:{WHITE};font-weight:800;font-size:1.1rem;">{benchmarks.get("avg_completion_pct", 0):.1f}%</span></div>
+            <div><span style="color:{MUTED};font-size:0.75rem;">Videos Analysed</span><br>
+                 <span style="color:{WHITE};font-weight:800;font-size:1.1rem;">{benchmarks.get("total_videos_analysed", 0)}</span></div>
+          </div>
+          <hr style="border-color:{BORDER};margin:16px 0;">
+          <p style="font-size:0.8rem;color:{MUTED};text-transform:uppercase;letter-spacing:1px;margin:0 0 8px 0;">Retention Alert</p>
+          <p style="color:{PINK};font-weight:700;font-size:0.9rem;margin:0;">
+            Drop-off at second {retention.get("universal_drop_off_second", 2)}</p>
+          <p style="color:{MUTED};font-size:0.78rem;margin:4px 0 0 0;">
+            {retention.get("implication", "Hook must grab attention in first 2 seconds")}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Audience Demographics row
+    st.markdown("<br>", unsafe_allow_html=True)
+    col_dem1, col_dem2, col_dem3 = st.columns(3, gap="large")
+
+    # Load watch matrix for demographics
+    _wm_path = PROJECT_ROOT / "data" / "video_watch_matrix.json"
+    if _wm_path.exists():
+        _wm = _json.loads(_wm_path.read_text(encoding="utf-8"))
+        _videos = _wm.get("videos", [])
+
+        with col_dem1:
+            st.markdown('<p class="section-label">Audience Gender Split</p>', unsafe_allow_html=True)
+            gender = audience.get("gender_avg", {"female": 82, "male": 17, "other": 1})
+            fig_gender = go.Figure(go.Pie(
+                labels=list(gender.keys()),
+                values=list(gender.values()),
+                hole=0.6,
+                marker=dict(colors=[PINK, BLUE, TEAL]),
+                textfont=dict(color=WHITE, size=12),
+                textinfo="label+percent",
+            ))
+            fig_gender.add_annotation(
+                text=f"<b>{gender.get('female', 82):.0f}%</b><br><span style='font-size:10px'>Female</span>",
+                x=0.5, y=0.5, showarrow=False,
+                font=dict(color=PINK, size=16),
+            )
+            fig_gender.update_layout(
+                **PLOTLY_BASE,
+                height=260,
+                showlegend=False,
+            )
+            st.plotly_chart(fig_gender, use_container_width=True, config={"displayModeBar": False})
+
+        with col_dem2:
+            st.markdown('<p class="section-label">Age Distribution (Avg Across Videos)</p>', unsafe_allow_html=True)
+            # Average age across all videos
+            age_totals: dict[str, list[float]] = {}
+            for v in _videos:
+                for bracket, pct in v.get("demographics", {}).get("age", {}).items():
+                    age_totals.setdefault(bracket, []).append(pct)
+            age_avg = {k: sum(v)/len(v) for k, v in age_totals.items()}
+            if age_avg:
+                age_labels = list(age_avg.keys())
+                age_vals = list(age_avg.values())
+                fig_age = go.Figure(go.Bar(
+                    x=age_labels,
+                    y=age_vals,
+                    marker=dict(
+                        color=age_vals,
+                        colorscale=[[0, BLUE], [0.5, TEAL], [1, PINK]],
+                        showscale=False,
+                    ),
+                    text=[f"{v:.0f}%" for v in age_vals],
+                    textposition="outside",
+                    textfont=dict(color=WHITE, size=12),
+                ))
+                fig_age.update_layout(
+                    **PLOTLY_BASE,
+                    height=260,
+                    xaxis=AXIS,
+                    yaxis={**AXIS, "title": "% of Viewers"},
+                    legend=dict(bgcolor="rgba(0,0,0,0)"),
+                )
+                st.plotly_chart(fig_age, use_container_width=True, config={"displayModeBar": False})
+
+        with col_dem3:
+            st.markdown('<p class="section-label">Top Viewer Countries</p>', unsafe_allow_html=True)
+            loc_totals: dict[str, list[float]] = {}
+            for v in _videos:
+                for country, pct in v.get("locations", {}).items():
+                    if country != "Others" and pct is not None:
+                        loc_totals.setdefault(country, []).append(pct)
+            loc_avg = {k: sum(v)/len(v) for k, v in loc_totals.items()}
+            loc_sorted = sorted(loc_avg.items(), key=lambda x: x[1], reverse=True)[:10]
+            if loc_sorted:
+                loc_names = [x[0] for x in loc_sorted]
+                loc_vals = [x[1] for x in loc_sorted]
+                fig_loc = go.Figure(go.Bar(
+                    x=loc_vals,
+                    y=loc_names,
+                    orientation="h",
+                    marker=dict(color=BLUE, opacity=0.85),
+                    text=[f"{v:.1f}%" for v in loc_vals],
+                    textposition="outside",
+                    textfont=dict(color=WHITE, size=11),
+                ))
+                fig_loc.update_layout(
+                    **PLOTLY_BASE,
+                    height=300,
+                    xaxis={**AXIS, "title": "Avg % of Viewers"},
+                    yaxis={**AXIS, "autorange": "reversed"},
+                    legend=dict(bgcolor="rgba(0,0,0,0)"),
+                )
+                st.plotly_chart(fig_loc, use_container_width=True, config={"displayModeBar": False})
+
+    # Video Performance Comparison row
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<p class="section-label">Video Watch Matrix — Per-Video Comparison</p>', unsafe_allow_html=True)
+
+    if _wm_path.exists():
+        vm_data = []
+        for v in _videos:
+            vm_data.append({
+                "Video": v["title"][:50] + "...",
+                "Theme": v.get("theme", ""),
+                "Hook Style": v.get("hook_style", "").replace("_", " "),
+                "Views": v["overview"]["views"],
+                "Avg Watch (s)": v["overview"]["avg_watch_time_seconds"],
+                "Full Video %": v["overview"]["watched_full_video_pct"],
+                "New Followers": v["overview"]["new_followers"],
+                "FYP %": v.get("traffic_sources", {}).get("for_you", 0),
+                "Drop-off (s)": v.get("retention", {}).get("drop_off_second", "?"),
+            })
+        vm_df = pd.DataFrame(vm_data).sort_values("Views", ascending=False)
+        st.dataframe(
+            vm_df.style.background_gradient(subset=["Views", "Avg Watch (s)", "Full Video %"], cmap="RdYlGn"),
+            use_container_width=True,
+            hide_index=True,
+        )
+else:
+    st.info("Run `python -m tiktok_ai_analytics.cli rl-train` to see RL insights.")
+
 # ── Sidebar exports (filled after data is ready) ─────────────────────────────
 def _build_html_report(summary: pd.DataFrame, period: str, total_views: int,
                        total_likes: int, total_shares: int, avg_eng: float) -> str:
