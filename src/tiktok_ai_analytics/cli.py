@@ -275,6 +275,7 @@ def _cmd_content_brief(args: argparse.Namespace) -> int:
     if args.export:
         from pathlib import Path
         from .canva_client import CanvaClient
+        from .video_processor import add_username_overlay
         settings = load_settings()
         client = CanvaClient(access_token=settings.canva_access_token, settings=settings)
         print(f"Exporting page {brief.page_index} as mp4...")
@@ -285,6 +286,10 @@ def _cmd_content_brief(args: argparse.Namespace) -> int:
             pages=[brief.page_index],
         )
         print(f"Saved: {out}")
+
+        # Burn username overlay onto the exported MP4
+        print(f"Applying username overlay ({settings.tiktok_username})...")
+        add_username_overlay(out, settings.tiktok_username)
 
         # Save caption + hashtags as a text file next to the MP4
         caption_file = out.with_suffix(".txt")
@@ -346,6 +351,12 @@ def _cmd_post_reel(args: argparse.Namespace) -> int:
         pages=[brief.page_index],
     )
     print(f"Video saved: {video_path}")
+
+    # Burn username overlay (unless --no-overlay)
+    if not args.no_overlay:
+        from .video_processor import add_username_overlay
+        print(f"Applying username overlay ({settings.tiktok_username})...")
+        add_username_overlay(video_path, settings.tiktok_username)
 
     # Step 3: Post to TikTok
     print("Step 3/3 — Posting to TikTok...")
@@ -436,6 +447,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run",
         action="store_true",
         help="Generate the brief only — skip export and posting",
+    )
+    p_post.add_argument(
+        "--no-overlay",
+        action="store_true",
+        help="Skip burning username overlay onto the exported video",
     )
 
     p_mark = sub.add_parser("mark-posted", help="Mark a Canva page as posted to TikTok")

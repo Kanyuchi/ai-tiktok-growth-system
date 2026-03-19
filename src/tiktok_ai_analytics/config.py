@@ -58,6 +58,9 @@ class Settings:
     gemini_api_key: str
     openai_api_key: str
 
+    # Video overlay
+    tiktok_username: str
+
 
 def load_settings() -> Settings:
     return Settings(
@@ -97,6 +100,7 @@ def load_settings() -> Settings:
         canva_refresh_token=os.getenv("CANVA_REFRESH_TOKEN", ""),
         gemini_api_key=os.getenv("GOOGLE_GEMINI_API_KEY", ""),
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+        tiktok_username=os.getenv("TIKTOK_USERNAME", "@thesoftupgrade1"),
     )
 
 

@@ -3,6 +3,14 @@
 ## 2026-03-16 17:27 — Project initialised
 - Documentation files created by Claude Code hook
 
+## 2026-03-19 22:15 — ffmpeg username overlay on video exports
+- Created `src/tiktok_ai_analytics/video_processor.py` — burns `@thesoftupgrade1` onto MP4s via ffmpeg drawtext filter
+- Position: bottom-centre at 82% height, white text with black shadow, Arial 42pt
+- Graceful fallback: if ffmpeg missing or fails, original video returned unchanged
+- Wired into `cli.py` (post-reel + content-brief --export) and `etl/pipeline.py` (daily pipeline)
+- Added `--no-overlay` flag to `post-reel` subparser
+- Added `tiktok_username` to Settings dataclass + `.env`
+
 ## 2026-03-19 21:30 — Reinforcement learning from video watch matrix
 - Analysed 22 TikTok Studio screenshots (5 videos × overview/viewers/engagement tabs)
 - Extracted structured watch matrix data to `data/video_watch_matrix.json`

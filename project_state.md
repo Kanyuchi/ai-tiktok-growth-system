@@ -10,6 +10,7 @@
 - **NEW**: RL-integrated content engine (60% RL scoring, 30% heuristic, 10% exploration)
 - **NEW**: Dashboard RL insights section (theme/hook charts, demographics, video comparison)
 - **NEW**: Watch matrix data extracted from 22 TikTok Studio screenshots
+- **NEW**: ffmpeg username overlay (`@thesoftupgrade1`) auto-applied on all MP4 exports
 
 ## Broken / Incomplete
 - No automated screenshot → watch matrix pipeline (manual extraction required)

@@ -215,6 +215,11 @@ def _run_content_brief(settings) -> None:
             output_dir=Path("exports"),
             pages=[page_idx],
         )
+        # Burn username overlay onto the exported MP4
+        from ..video_processor import add_username_overlay
+        add_username_overlay(out, settings.tiktok_username)
+        print(f"[BRIEF] Username overlay applied.")
+
         caption_file = out.with_suffix(".txt")
         caption_file.write_text(f"CAPTION:\n{caption}\n\n{hashtags}\n", encoding="utf-8")
         print(f"[BRIEF] Exported: {out}")

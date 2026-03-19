@@ -29,3 +29,4 @@
 - Content engine integrated with RL scoring (2026-03-19)
 - Dashboard updated with RL insights + demographics (2026-03-19)
 - Today's RL-optimised caption generated (2026-03-19)
+- ffmpeg username overlay on video exports (2026-03-19)
