@@ -416,6 +416,75 @@ def _cmd_new_profile(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_caption_video(args: argparse.Namespace) -> int:
+    """Generate AI caption variants for a local video using Claude vision."""
+    from .video_caption import generate_captions, load_profile_niche
+
+    video_path = Path(args.video).expanduser().resolve()
+    if not video_path.exists():
+        print(f"Video file not found: {video_path}")
+        return 1
+
+    settings = load_settings()
+    profile = profiles.active_profile()
+    handle = settings.tiktok_username
+    niche = args.niche or load_profile_niche(profile)
+
+    print(f"Generating {args.variants} caption variants for {video_path.name}...")
+    print(f"  handle: {handle}")
+    print(f"  niche : {niche}")
+    print(f"  model : Claude Sonnet 4.6 ({args.frames} frames)")
+
+    result = generate_captions(
+        video_path=video_path,
+        handle=handle,
+        niche=niche,
+        n_frames=args.frames,
+        n_variants=args.variants,
+    )
+
+    print("\n" + "═" * 60)
+    print(f"  Video summary: {result.raw_video_summary}")
+    print("═" * 60)
+    for i, v in enumerate(result.variants, 1):
+        print(f"\n── Variant {i} ─────────────────────────────────────────")
+        print(f"HOOK: {v.hook}")
+        print(f"\n{v.body}")
+        print(f"\n{v.hashtags}")
+    print("\n" + "═" * 60)
+
+    if args.save:
+        out_path = video_path.with_suffix(".captions.json")
+        out_path.write_text(
+            json.dumps(
+                {
+                    "video": str(video_path),
+                    "handle": handle,
+                    "niche": niche,
+                    "video_summary": result.raw_video_summary,
+                    "variants": [
+                        {"hook": v.hook, "body": v.body, "hashtags": v.hashtags}
+                        for v in result.variants
+                    ],
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        print(f"\nSaved variants to {out_path}")
+
+    if args.write_caption is not None:
+        idx = args.write_caption - 1
+        if idx < 0 or idx >= len(result.variants):
+            print(f"--write-caption {args.write_caption} out of range (1..{len(result.variants)})")
+            return 1
+        caption_path = video_path.with_suffix(".txt")
+        caption_path.write_text(result.variants[idx].to_post_caption() + "\n", encoding="utf-8")
+        print(f"Wrote variant {args.write_caption} to {caption_path} (ready for `post-local --caption-file`)")
+
+    return 0
+
+
 def _cmd_post_local(args: argparse.Namespace) -> int:
     """Post a local MP4 to TikTok using the active profile's credentials.
 
@@ -507,6 +576,23 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_local.add_argument("--no-overlay", action="store_true", help="Skip ffmpeg username overlay")
     p_local.add_argument("--dry-run", action="store_true", help="Show what would post, don't upload")
+
+    p_cap = sub.add_parser(
+        "caption-video",
+        help="Generate AI caption variants (Claude vision) for a local MP4",
+    )
+    p_cap.add_argument("--video", required=True, help="Path to local .mp4 file")
+    p_cap.add_argument("--variants", type=int, default=3, help="How many caption variants (default 3)")
+    p_cap.add_argument("--frames", type=int, default=4, help="How many frames to extract for Claude (default 4)")
+    p_cap.add_argument("--niche", default=None, help="Override niche (default: read from data/<profile>/profile.md)")
+    p_cap.add_argument("--save", action="store_true", help="Write <video>.captions.json next to the video")
+    p_cap.add_argument(
+        "--write-caption",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Write variant N to <video>.txt (ready for `post-local --caption-file`)",
+    )
 
     p_auth = sub.add_parser("auth-url", help="Generate TikTok OAuth authorization URL")
     p_auth.add_argument("--state", default=None, help="Optional custom state value")
@@ -679,6 +765,7 @@ def main(argv: list[str] | None = None) -> int:
         "rl-status": _cmd_rl_status,
         "new-profile": _cmd_new_profile,
         "post-local": _cmd_post_local,
+        "caption-video": _cmd_caption_video,
     }
 
     return dispatch[args.command](args)

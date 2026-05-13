@@ -63,12 +63,17 @@ class TikTokPoster:
             raise TikTokPostError(f"Video file not found: {video_path}")
 
         video_size = video_path.stat().st_size
-        total_chunks = math.ceil(video_size / self.CHUNK_SIZE)
+        chunk_size, total_chunks = self._plan_chunks(video_size)
 
         # 1. Init publish
-        print(f"[POSTER] Initialising TikTok publish ({video_size:,} bytes, {total_chunks} chunk(s))...")
+        print(
+            f"[POSTER] Initialising TikTok publish "
+            f"({video_size:,} bytes, {total_chunks} chunk(s) @ {chunk_size:,} bytes)..."
+        )
         init_resp = self._init_publish(
             video_size=video_size,
+            chunk_size=chunk_size,
+            total_chunk_count=total_chunks,
             caption=caption,
             privacy_level=privacy_level,
             disable_duet=disable_duet,
@@ -80,7 +85,7 @@ class TikTokPoster:
         print(f"[POSTER] publish_id={publish_id}")
 
         # 2. Upload
-        self._upload_chunks(video_path, upload_url, video_size, total_chunks)
+        self._upload_chunks(video_path, upload_url, video_size, chunk_size, total_chunks)
 
         # 3. Poll status
         result = self._poll_status(publish_id)
@@ -89,9 +94,30 @@ class TikTokPoster:
 
     # ── TikTok API calls ──────────────────────────────────────────────────────
 
+    SINGLE_CHUNK_MAX = 64 * 1024 * 1024  # TikTok allows a single chunk up to 64 MB
+
+    @classmethod
+    def _plan_chunks(cls, video_size: int) -> tuple[int, int]:
+        """Return (chunk_size, total_chunks) that satisfies TikTok's rules.
+
+        TikTok requires the last chunk to be >= chunk_size (chunks before the
+        last must be exactly chunk_size). For files <= 64 MB the simplest valid
+        plan is a single chunk equal to the full file. For larger files we use
+        CHUNK_SIZE but bump the last chunk by the remainder.
+        """
+        if video_size <= cls.SINGLE_CHUNK_MAX:
+            return video_size, 1
+        # multi-chunk: floor division — the last chunk absorbs the leftover bytes
+        total_chunks = video_size // cls.CHUNK_SIZE
+        if total_chunks < 1:
+            total_chunks = 1
+        return cls.CHUNK_SIZE, total_chunks
+
     def _init_publish(
         self,
         video_size: int,
+        chunk_size: int,
+        total_chunk_count: int,
         caption: str,
         privacy_level: str,
         disable_duet: bool,
@@ -110,20 +136,30 @@ class TikTokPoster:
             "source_info": {
                 "source": "FILE_UPLOAD",
                 "video_size": video_size,
-                "chunk_size": min(self.CHUNK_SIZE, video_size),
-                "total_chunk_count": math.ceil(video_size / self.CHUNK_SIZE),
+                "chunk_size": chunk_size,
+                "total_chunk_count": total_chunk_count,
             },
         }
         return self._request("POST", "/post/publish/video/init/", json=payload)
 
     def _upload_chunks(
-        self, video_path: Path, upload_url: str, video_size: int, total_chunks: int
+        self,
+        video_path: Path,
+        upload_url: str,
+        video_size: int,
+        chunk_size: int,
+        total_chunks: int,
     ) -> None:
         with open(video_path, "rb") as f:
             for chunk_idx in range(total_chunks):
-                start = chunk_idx * self.CHUNK_SIZE
-                end = min(start + self.CHUNK_SIZE, video_size) - 1
-                chunk = f.read(self.CHUNK_SIZE)
+                start = chunk_idx * chunk_size
+                # Last chunk reads to end-of-file (may be > chunk_size by remainder)
+                if chunk_idx == total_chunks - 1:
+                    chunk = f.read()
+                    end = video_size - 1
+                else:
+                    chunk = f.read(chunk_size)
+                    end = start + chunk_size - 1
                 content_range = f"bytes {start}-{end}/{video_size}"
 
                 print(f"[POSTER] Uploading chunk {chunk_idx + 1}/{total_chunks} ({content_range})")

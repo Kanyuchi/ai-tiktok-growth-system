@@ -1,5 +1,14 @@
 # Session Log — AI TikTok Growth System
 
+## 2026-05-13 18:57 — @thetechmudhara live: full OAuth + post pipeline working
+- OAuth flow completed for the second account (sandbox app, ngrok HTTPS redirect URI `https://overparticularly-completive-vince.ngrok-free.dev/callback`, sandbox client_key `sbaw6mcvibpjqugtpt`)
+- Hit + resolved 4 distinct TikTok policy/protocol gates: localhost redirect URI rejection (switched to ngrok), production vs sandbox client_key mismatch, chunked-upload math (last chunk must be ≥ chunk_size — fixed `_plan_chunks` to use a single chunk for files ≤ 64 MB), unaudited-app restriction (account must be Private for API posts)
+- Built `caption-video` CLI command + `video_caption.py`: ffmpeg frame extract (4 frames evenly spaced) → Claude Sonnet 4.6 vision → N JSON-parsed caption variants. Profile-aware (reads niche from `data/<profile>/profile.md`). First test on drone footage generated 3 distinct-angle variants that correctly identified the scene (golden-hour drone shot, two people in a Central European meadow)
+- First post: 48 MB drone clip `lv_0_20250213194144.mp4` uploaded SELF_ONLY successfully → PUBLISH_COMPLETE
+- Discovered ffmpeg 8.1 (Homebrew default) ships without `drawtext` filter → username overlay silently fails on both profiles. Filed as separate task, posted with `--no-overlay` for now
+- Anthropic SDK added to venv (not yet in pyproject.toml dependencies)
+- Decisions locked in: while app is unaudited, `@thetechmudhara` must remain Private to use API posting; switching back public means manual posting (with AI captions still useful)
+
 ## 2026-05-13 11:34 — Multi-account profile support (new TikTok account scaffolded)
 - Added `src/tiktok_ai_analytics/profiles.py` — per-account env files (`.env.<name>`), OAuth session files (`.oauth_session.<name>.json`), `exports/<name>/`, `data/<name>/`
 - CLI gained top-level `--profile <name>` flag; activated in `main()` via `load_dotenv(override=True)` before subcommand dispatch

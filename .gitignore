@@ -10,6 +10,11 @@ __pycache__/
 .oauth_session.json
 .oauth_session.*.json
 .canva_session.json
+
+# Per-profile video assets (large, account-specific, not source)
+exports/*/*.mp4
+exports/*/*.captions.json
+exports/*/*.txt
 .pytest_cache/
 .mypy_cache/
 .DS_Store
