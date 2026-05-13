@@ -1,5 +1,11 @@
 # Session Log — AI TikTok Growth System
 
+## 2026-05-13 19:09 — Fix ffmpeg drawtext / username overlay
+- Root cause: `homebrew/core` ffmpeg 8.1 ships without libfreetype → no `drawtext` filter → username overlay silently fell back to original video on both profiles
+- Fix: swapped to `homebrew-ffmpeg/ffmpeg/ffmpeg` tap (compiles from source, ~60s) — ffmpeg 8.1.1 with libfreetype + libfontconfig + libharfbuzz
+- Verified `drawtext` filter present and overlay applies cleanly on a 48 MB drone clip (50 MB → 60 MB after re-encode; still under TikTok's 64 MB single-chunk threshold)
+- No code changes — system dep fix only
+
 ## 2026-05-13 18:57 — @thetechmudhara live: full OAuth + post pipeline working
 - OAuth flow completed for the second account (sandbox app, ngrok HTTPS redirect URI `https://overparticularly-completive-vince.ngrok-free.dev/callback`, sandbox client_key `sbaw6mcvibpjqugtpt`)
 - Hit + resolved 4 distinct TikTok policy/protocol gates: localhost redirect URI rejection (switched to ngrok), production vs sandbox client_key mismatch, chunked-upload math (last chunk must be ≥ chunk_size — fixed `_plan_chunks` to use a single chunk for files ≤ 64 MB), unaudited-app restriction (account must be Private for API posts)
