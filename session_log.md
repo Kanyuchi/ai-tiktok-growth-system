@@ -1,5 +1,16 @@
 # Session Log — AI TikTok Growth System
 
+## 2026-05-13 11:34 — Multi-account profile support (new TikTok account scaffolded)
+- Added `src/tiktok_ai_analytics/profiles.py` — per-account env files (`.env.<name>`), OAuth session files (`.oauth_session.<name>.json`), `exports/<name>/`, `data/<name>/`
+- CLI gained top-level `--profile <name>` flag; activated in `main()` via `load_dotenv(override=True)` before subcommand dispatch
+- Token-saving commands (`exchange-code --save`, `refresh-token --save`) now write to the active profile's env file, not always `.env`
+- New command `new-profile --name --handle --niche` scaffolds env template + dirs + a profile.md note, and prints OAuth-setup next steps
+- New command `post-local --video --caption [--caption-file] [--privacy] [--no-overlay] [--dry-run]` posts a local MP4 directly to TikTok (bypasses Canva/RL — for accounts using external videos)
+- `.gitignore` widened to `.env.*` and `.oauth_session.*.json` (previously only the exact filenames were ignored, which would have leaked profile secrets on commit)
+- Scaffolded profile `thetechmudhara` (@thetechmudhara, niche: Tech and AI, Drone flying videos, Travel, Fashion). Credentials not yet filled in — pending new TikTok dev-app creation by user
+- Docs at `docs/multi-account.md` walking through the full setup
+- Analytics/ETL is intentionally still single-account — deferred until the new account is worth tracking
+
 ## 2026-03-16 17:27 — Project initialised
 - Documentation files created by Claude Code hook
 

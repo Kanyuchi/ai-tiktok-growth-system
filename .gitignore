@@ -4,8 +4,12 @@ __pycache__/
 .venv/
 .venv312/
 .env
+.env.*
+!.env.example
 .oauth_code.txt
 .oauth_session.json
+.oauth_session.*.json
+.canva_session.json
 .pytest_cache/
 .mypy_cache/
 .DS_Store

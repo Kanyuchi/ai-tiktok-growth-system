@@ -11,12 +11,14 @@
 - **NEW**: Dashboard RL insights section (theme/hook charts, demographics, video comparison)
 - **NEW**: Watch matrix data extracted from 22 TikTok Studio screenshots
 - **NEW**: ffmpeg username overlay (`@thesoftupgrade1`) auto-applied on all MP4 exports
+- **NEW**: Multi-account profiles — `--profile <name>` activates `.env.<name>` + `exports/<name>/` + `.oauth_session.<name>.json`. Commands: `new-profile`, `post-local` (post a local MP4 without the Canva/RL pipeline). Second account `@thetechmudhara` scaffolded; OAuth + first post pending
 
 ## Broken / Incomplete
 - No automated screenshot → watch matrix pipeline (manual extraction required)
 - Mood arms untrained (no mood data extracted from screenshots yet)
 - RL model has small sample (5 videos) — posteriors will improve with more data
 - LinkedIn analytics module exists but separate from TikTok system
+- Analytics/ETL (`run-daily`) is NOT profile-aware yet — DB schema is shared. Second account can post but not yet be tracked. Schema scoping by `account_open_id` is the next migration when needed.
 
 ## Key Decisions Made
 - Thompson Sampling chosen over UCB/epsilon-greedy (better exploration-exploitation balance with small sample)

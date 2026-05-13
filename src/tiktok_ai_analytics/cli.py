@@ -14,8 +14,17 @@ from .db import initialize_schema
 from .env_store import upsert_env_values
 from .etl.pipeline import run_daily_pipeline
 from .etl.tiktok_client import TikTokClient
+from . import profiles
 
-OAUTH_SESSION_FILE = Path(".oauth_session.json")
+
+def _oauth_session_file() -> Path:
+    return profiles.oauth_session_file(profiles.active_profile())
+
+
+def _profile_env_path() -> Path:
+    return profiles.env_file(profiles.active_profile())
+
+
 CANVA_SESSION_FILE = Path(".canva_session.json")
 
 
@@ -45,7 +54,8 @@ def _cmd_auth_url(args: argparse.Namespace) -> int:
     code_challenge = client.code_challenge_from_verifier(code_verifier)
     url, state = client.build_authorize_url(state=args.state, code_challenge=code_challenge)
 
-    OAUTH_SESSION_FILE.write_text(
+    oauth_session_file = _oauth_session_file()
+    oauth_session_file.write_text(
         json.dumps(
             {
                 "state": state,
@@ -59,7 +69,7 @@ def _cmd_auth_url(args: argparse.Namespace) -> int:
 
     print(f"State: {state}")
     print("PKCE enabled: code_challenge_method=S256")
-    print(f"Saved PKCE session to {OAUTH_SESSION_FILE}")
+    print(f"Saved PKCE session to {oauth_session_file}")
     print("Open this URL in your browser and authorize:")
     print(url)
     return 0
@@ -69,8 +79,9 @@ def _cmd_exchange_code(args: argparse.Namespace) -> int:
     settings = load_settings()
     client = TikTokAuthClient(settings)
     code_verifier = args.code_verifier
-    if not code_verifier and OAUTH_SESSION_FILE.exists():
-        session_data = json.loads(OAUTH_SESSION_FILE.read_text(encoding="utf-8"))
+    oauth_session_file = _oauth_session_file()
+    if not code_verifier and oauth_session_file.exists():
+        session_data = json.loads(oauth_session_file.read_text(encoding="utf-8"))
         code_verifier = session_data.get("code_verifier")
 
     if not code_verifier:
@@ -88,13 +99,15 @@ def _cmd_exchange_code(args: argparse.Namespace) -> int:
     print(f"expires_in: {bundle.expires_in}")
 
     if args.save:
+        env_path = _profile_env_path()
         upsert_env_values(
             {
                 "TIKTOK_ACCESS_TOKEN": bundle.access_token,
                 "TIKTOK_REFRESH_TOKEN": bundle.refresh_token,
-            }
+            },
+            env_path=env_path,
         )
-        print("Saved TIKTOK_ACCESS_TOKEN and TIKTOK_REFRESH_TOKEN into .env")
+        print(f"Saved TIKTOK_ACCESS_TOKEN and TIKTOK_REFRESH_TOKEN into {env_path}")
 
     return 0
 
@@ -113,13 +126,15 @@ def _cmd_refresh_token(args: argparse.Namespace) -> int:
     print(f"expires_in: {bundle.expires_in}")
 
     if args.save:
+        env_path = _profile_env_path()
         upsert_env_values(
             {
                 "TIKTOK_ACCESS_TOKEN": bundle.access_token,
                 "TIKTOK_REFRESH_TOKEN": bundle.refresh_token,
-            }
+            },
+            env_path=env_path,
         )
-        print("Saved refreshed tokens into .env")
+        print(f"Saved refreshed tokens into {env_path}")
 
     return 0
 
@@ -374,11 +389,124 @@ def _cmd_post_reel(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_new_profile(args: argparse.Namespace) -> int:
+    """Scaffold a new account profile (env file + per-account dirs)."""
+    name = args.name.strip().lower()
+    if not name or not all(c.isalnum() or c in "-_" for c in name):
+        print("Profile name must be alphanumeric (with optional - or _).")
+        return 1
+
+    paths = profiles.scaffold(profile=name, handle=args.handle, niche=args.niche)
+
+    print(f"\nProfile '{name}' scaffolded:")
+    for label, path in paths.items():
+        print(f"  {label:8s} {path}")
+
+    print("\nNext steps:")
+    print(f"  1. Create a NEW TikTok dev app at https://developers.tiktok.com/apps")
+    print(f"     Add http://localhost:3000/callback as redirect URI.")
+    print(f"     Enable scope: video.publish (plus user.info.basic, video.list, video.insights).")
+    print(f"  2. Paste TIKTOK_CLIENT_ID and TIKTOK_CLIENT_SECRET into {paths['env']}")
+    print(f"  3. python -m tiktok_ai_analytics.cli --profile {name} auth-url")
+    print(f"  4. (Authorise the new account, paste the redirect ?code= back:)")
+    print(f"     python -m tiktok_ai_analytics.cli --profile {name} exchange-code --code <code> --save")
+    print(f"  5. Drop your MP4s into {paths['exports']}/ and post:")
+    print(f"     python -m tiktok_ai_analytics.cli --profile {name} post-local \\")
+    print(f"         --video {paths['exports']}/clip1.mp4 --caption \"your caption #tag\"")
+    return 0
+
+
+def _cmd_post_local(args: argparse.Namespace) -> int:
+    """Post a local MP4 to TikTok using the active profile's credentials.
+
+    Bypasses Canva + ContentEngine — for accounts that have their own pre-made videos.
+    """
+    from .tiktok_poster import TikTokPoster
+    from .video_processor import add_username_overlay
+
+    settings = load_settings()
+
+    if not settings.tiktok_access_token:
+        active = profiles.active_profile() or "(default)"
+        print(
+            f"Missing TIKTOK_ACCESS_TOKEN for profile {active!r}. "
+            f"Run `auth-url` then `exchange-code --save` first."
+        )
+        return 1
+
+    video_path = Path(args.video).expanduser().resolve()
+    if not video_path.exists():
+        print(f"Video file not found: {video_path}")
+        return 1
+
+    if args.caption_file:
+        caption = Path(args.caption_file).read_text(encoding="utf-8").strip()
+    elif args.caption is not None:
+        caption = args.caption
+    else:
+        print("Provide --caption \"text\" or --caption-file path.txt")
+        return 1
+
+    if not args.no_overlay:
+        print(f"Applying username overlay ({settings.tiktok_username})...")
+        add_username_overlay(video_path, settings.tiktok_username)
+
+    if args.dry_run:
+        print("\n[DRY RUN] Would post:")
+        print(f"  Video : {video_path}")
+        print(f"  Privacy: {args.privacy}")
+        print(f"  Caption: {caption}")
+        return 0
+
+    print(f"Uploading {video_path.name} to TikTok ({args.privacy})...")
+    poster = TikTokPoster(access_token=settings.tiktok_access_token, settings=settings)
+    result = poster.post_video(
+        video_path=video_path,
+        caption=caption,
+        privacy_level=args.privacy,
+    )
+
+    print("\n" + "✓" * 60)
+    print(f"  Posted! publish_id: {result.publish_id}")
+    print(f"  Status: {result.status}")
+    print("✓" * 60)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="TikTok AI Analytics CLI")
+    parser.add_argument(
+        "--profile",
+        default=None,
+        help="Account profile name (loads .env.<profile>). Omit for the default account.",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("setup-db", help="Initialize PostgreSQL schema")
+
+    p_new = sub.add_parser(
+        "new-profile",
+        help="Scaffold a new TikTok account profile (env file + dirs)",
+    )
+    p_new.add_argument("--name", required=True, help="Profile slug, e.g. 'softera' (alnum + -_)")
+    p_new.add_argument("--handle", required=True, help="TikTok handle, e.g. '@softera'")
+    p_new.add_argument("--niche", required=True, help="One-line niche description")
+
+    p_local = sub.add_parser(
+        "post-local",
+        help="Post a local MP4 directly to TikTok (no Canva/RL pipeline)",
+    )
+    p_local.add_argument("--video", required=True, help="Path to local .mp4 file")
+    caption_group = p_local.add_mutually_exclusive_group()
+    caption_group.add_argument("--caption", default=None, help="Caption text (with hashtags)")
+    caption_group.add_argument("--caption-file", default=None, help="Path to a .txt file with caption")
+    p_local.add_argument(
+        "--privacy",
+        default="PUBLIC_TO_EVERYONE",
+        choices=["PUBLIC_TO_EVERYONE", "MUTUAL_FOLLOW_FRIENDS", "FOLLOWER_OF_CREATOR", "SELF_ONLY"],
+    )
+    p_local.add_argument("--no-overlay", action="store_true", help="Skip ffmpeg username overlay")
+    p_local.add_argument("--dry-run", action="store_true", help="Show what would post, don't upload")
 
     p_auth = sub.add_parser("auth-url", help="Generate TikTok OAuth authorization URL")
     p_auth.add_argument("--state", default=None, help="Optional custom state value")
@@ -525,6 +653,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    if args.profile and args.command != "new-profile":
+        try:
+            profiles.activate(args.profile)
+        except FileNotFoundError as exc:
+            print(str(exc))
+            return 1
+
     dispatch = {
         "setup-db": _cmd_setup_db,
         "auth-url": _cmd_auth_url,
@@ -542,6 +677,8 @@ def main(argv: list[str] | None = None) -> int:
         "mark-posted": _cmd_mark_posted,
         "rl-train": _cmd_rl_train,
         "rl-status": _cmd_rl_status,
+        "new-profile": _cmd_new_profile,
+        "post-local": _cmd_post_local,
     }
 
     return dispatch[args.command](args)
