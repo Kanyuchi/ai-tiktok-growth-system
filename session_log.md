@@ -1,5 +1,19 @@
 # Session Log — AI TikTok Growth System
 
+## 2026-05-13 21:48 — Post-mortem on first @thetechmudhara post + niche pivot + next clip pre-analysed
+
+**First post analytics** (lv_0_20250213194144.mp4, 48 MB, posted earlier today): 356 views, 4 likes, 0 comments, 1 share, 0 new followers. Avg watch 3.23s of 43s (7.5% completion). 98.8% from FYP. "Most viewers stopped at 0:01." Audience served: 75% Germany, 6% Austria, 5% Switzerland; 68% male; 25-34 dominant.
+
+**Diagnosis:** algorithm matched DACH male tech/drone audience based on visuals — but the actual audio was a spoken monologue about intentional living vs reactive consumerism. Bounce at 0:01 because opening frame (microscopic figure in vast field) gave zero signal of philosophy content. Niche-content mismatch.
+
+**Pivot:** `data/thetechmudhara/profile.md` niche rewritten from "Tech, AI, Drone, Travel, Fashion" to "Intentional living through the lens of modern life — applied to whatever the canvas is that day." Visuals can vary; perspective stays constant. Caption tone + structure documented in profile.md so `caption-video` writes on-brand automatically.
+
+**Next clip pre-analysed (lv_0_20251108235113~2.mp4, 54s @ 720p):** drone aerial of a rooftop terrace, man in grey sweater (Black, mid-shot at 10s mark). Same failure pattern in opening — no face, no text in first 1s. Frame analysis + 3 caption variants + text-overlay suggestions saved to `exports/thetechmudhara/lv_0_20251108235113~2.analysis.json`. Recommended action: trim to start at 10s for 25s, burn "stillness isn't emptiness" text overlay 0.2-2.5s, post Variant 1 caption ("What does it look like when you finally stop performing busyness?").
+
+**Audio strategy:** original is a generic song. Recommendation = record voiceover monologue (voice = differentiator on this account). User will record before posting OR keep song if not ready.
+
+**Trim + post + analytics check deferred to next session** — whats_next.md has the exact commands ready. User has set @thetechmudhara to Private again (required while app is unaudited).
+
 ## 2026-05-13 19:09 — Fix ffmpeg drawtext / username overlay
 - Root cause: `homebrew/core` ffmpeg 8.1 ships without libfreetype → no `drawtext` filter → username overlay silently fell back to original video on both profiles
 - Fix: swapped to `homebrew-ffmpeg/ffmpeg/ffmpeg` tap (compiles from source, ~60s) — ffmpeg 8.1.1 with libfreetype + libfontconfig + libharfbuzz
