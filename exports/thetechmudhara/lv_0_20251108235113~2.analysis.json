@@ -1,0 +1,64 @@
+{
+  "frames": [
+    {
+      "t": 0.0,
+      "description": "Aerial drone shot of wooden building rooftop, tiny figure standing"
+    },
+    {
+      "t": 0.3,
+      "description": "Drone slightly lower, person on terrace barely visible from above"
+    },
+    {
+      "t": 0.7,
+      "description": "Drone descending, person on green rooftop terrace comes clearer"
+    },
+    {
+      "t": 1.0,
+      "description": "Drone lower, man standing alone on upper floor terrace"
+    },
+    {
+      "t": 1.5,
+      "description": "Drone closer, man standing still between two glass doors"
+    },
+    {
+      "t": 2.0,
+      "description": "Drone descending more, man's posture visible, looking at camera"
+    },
+    {
+      "t": 3.0,
+      "description": "Drone at mid-height, man clearly framed against wooden facade"
+    },
+    {
+      "t": 10.0,
+      "description": "Close ground-level portrait, Black man in grey sweater, green trousers"
+    },
+    {
+      "t": 25.0,
+      "description": "Drone pulled back wide, man small against full building facade"
+    }
+  ],
+  "opening_diagnosis": "Cold FYP viewer will bounce at 0.0s. The opening is a high aerial shot of an anonymous rooftop \u2014 no face, no text, no signal of who this is or why it matters. A drone/architecture audience might pause out of visual curiosity, but even they have no reason to stay past 0.3s. Zero mindset signal exists in the first second. The account's known failure mode (algorithm lesson from first post) is repeating exactly here: visuals attract one niche, content serves another, and no bridge is burned into the frame within the critical 0.5s window.",
+  "best_opener_t": 10.0,
+  "text_overlay_hooks": [
+    "stillness isn't emptiness",
+    "you don't need more \u2014 you need less noise"
+  ],
+  "audio_recommendation": "Swap the song for a short voiceover monologue recorded by you, ideally 20-35 seconds. Start with one quiet, direct line to camera (matching the 10s close-up frame), then let the drone pull-back play under your voice fading to ambient building sound. The contrast between the vast aerial perspective and a single intimate voice mirrors the intentional-living message \u2014 one person, choosing presence over scale. A trending sound will attract the wrong audience and bury the philosophy; your voice is the differentiator on this account.",
+  "captions": [
+    {
+      "hook": "What does it look like when you finally stop performing busyness?",
+      "body": "Stood on that terrace and realised \u2014 I wasn't resting. I was just waiting to be productive again. There's a difference between pausing and actually being still. One is recovery. The other is presence. Most of us only practise the first one.",
+      "hashtags": "#intentionalliving #mindsetshift #soulwork #slowliving #dronephotography #droneview #intentionallife #beingpresent #consciousliving #thetechmudhara"
+    },
+    {
+      "hook": "The view from outside yourself looks very different.",
+      "body": "Drone footage does something to you. You see how small you are against the building. Against the treeline. Against everything. And somehow that's not frightening \u2014 it's clarifying. You stop defending the smallness and start choosing what actually fills the space.",
+      "hashtags": "#perspective #intentionalliving #mindsetshift #droneshots #dronefootage #selfreflection #soulwork #consciousliving #travelmindset #thetechmudhara"
+    },
+    {
+      "hook": "Most people are moving. Very few are going somewhere.",
+      "body": "I stood in one spot for a full minute while the drone circled. Didn't check my phone. Didn't plan the next thing. Just stood. Felt strange at first \u2014 like I should be doing something. That feeling is worth examining. Why does stillness feel like failure?",
+      "hashtags": "#intentionalliving #anticonsumerism #slowdown #mindsetshift #soulwork #dronephotography #intentionallife #mentalclarity #modernstoicism #thetechmudhara"
+    }
+  ]
+}

@@ -12,7 +12,7 @@
 - **NEW**: Watch matrix data extracted from 22 TikTok Studio screenshots
 - **NEW**: ffmpeg username overlay (`@thesoftupgrade1`) auto-applied on all MP4 exports
 - **NEW**: Multi-account profiles — `--profile <name>` activates `.env.<name>` + `exports/<name>/` + `.oauth_session.<name>.json`. Commands: `new-profile`, `post-local`, `caption-video` (Claude Sonnet 4.6 vision → AI caption variants from profile niche)
-- **NEW**: `@thetechmudhara` live (Sandbox app + ngrok OAuth + Private account workaround for unaudited-app gate). First post posted, analytics in. Niche pivoted to intentional-living-as-throughline after post-mortem revealed audience/content mismatch
+- **NEW**: `@thetechmudhara` live (Sandbox app + ngrok OAuth + Private account workaround for unaudited-app gate). Two posts live. Niche pivoted to intentional-living-as-throughline after post-mortem revealed audience/content mismatch. **Hard rule for this profile**: API `--privacy` must be `SELF_ONLY` until the app is audited — `PUBLIC_TO_EVERYONE` is rejected with `unaudited_client_can_only_post_to_private_accounts` even when the account itself is set to Private
 - **NEW**: TikTok chunked-upload bug fixed (`_plan_chunks`: single chunk for files ≤ 64 MB; multi-chunk math respects "last chunk ≥ chunk_size" constraint)
 - **NEW**: ffmpeg drawtext restored (homebrew-ffmpeg tap install — original homebrew/core ffmpeg 8.1 was stripped of libfreetype, silently breaking the @username overlay on both profiles)
 

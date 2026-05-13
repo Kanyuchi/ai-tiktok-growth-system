@@ -1,5 +1,14 @@
 # Session Log — AI TikTok Growth System
 
+## 2026-05-13 21:55 — Second @thetechmudhara post live (trim + overlay + SELF_ONLY publish)
+
+- Trimmed `lv_0_20251108235113~2.mp4` (54s → 25.0s, start at 10s) via `ffmpeg -ss 10 -t 25 -c copy` — kept the ground-level portrait opener instead of the cold drone aerial that bounced viewers at 0:01 on the first post
+- Burned text overlay "stillness isn’t emptiness" 0.2–2.5s using `drawtext` at y=h*0.15 (used U+2019 typographic apostrophe to dodge shell-escape on the contraction — cleaner than `\\'` in the documented command)
+- Wrote `lv_0_20251108235113_caption.txt` with Variant 1 from the pre-saved analysis ("What does it look like when you finally stop performing busyness?" + intentional-living hashtag set)
+- First post attempt with `--privacy PUBLIC_TO_EVERYONE` (as written in whats_next.md) rejected: `unaudited_client_can_only_post_to_private_accounts` (HTTP 403). Reposted with `--privacy SELF_ONLY` → PUBLISH_COMPLETE, publish_id `v_pub_file~v2-1.7639466974820812803`, 8.87 MB single-chunk
+- Lesson locked in: even with the account set to Private in TikTok settings, the unaudited app still requires `privacy_level=SELF_ONLY` on the publish call itself. The previous "set account Private" workaround is necessary but not sufficient — the API param must also be SELF_ONLY. Update whats_next.md template accordingly
+- Username overlay (`@thetechmudhara`) applied cleanly on top of the drawtext layer (homebrew-ffmpeg drawtext still working post tap-install)
+
 ## 2026-05-13 21:48 — Post-mortem on first @thetechmudhara post + niche pivot + next clip pre-analysed
 
 **First post analytics** (lv_0_20250213194144.mp4, 48 MB, posted earlier today): 356 views, 4 likes, 0 comments, 1 share, 0 new followers. Avg watch 3.23s of 43s (7.5% completion). 98.8% from FYP. "Most viewers stopped at 0:01." Audience served: 75% Germany, 6% Austria, 5% Switzerland; 68% male; 25-34 dominant.
