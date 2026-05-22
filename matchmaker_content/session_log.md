@@ -22,3 +22,11 @@ Dated history of the launch campaign work. Append-only. Scoped to this launch (s
 - **Re-baselined the countdown calendar** (`posts/calendar-rebaselined-2026-05-22.md`): launch fired 5 days early, so the old tail left a May 22–26 dead zone. Respaced pillars one-push-per-weekday across the 11-day runway — Shaun video Mon 25, P2 how-it-works Tue 26, carousel Wed 27, P3 who's-in-room Thu 28, P5 last-call Jun 1; weekends dark, Fridays light.
 - **Caption call:** recommend **Option A** for today's X closing-clip post (works cold, no link in main tweet → better reach; proofoftalk.io link goes in the first reply).
 - **Next turn:** live app captures from meet.proofoftalk.io (needs Shaun logged in) for the carousel upgrade + Concierge slide; cut the `f_24s` "why this meeting matters" crop for slide 3.
+
+## 2026-05-22 — Pivot to real-app recording pipeline (Shaun: "stop going in circles")
+- **Strategy:** stop recycling old hero-film frames. Content = **real app footage** of the Matchmaker working, recorded logged-in. Target: LinkedIn **4:5** (primary) + 1:1 cuts, builder's-voice account.
+- **Division of labour (Shaun's call):** the **app-directory Claude** records the walkthrough (it knows the routes/selectors/which screens impress); **this repo** processes it (crop → convert → blur if needed → caption).
+- Wrote the handoff brief `RECORDING-SPEC.md` (data preference = demo/seeded to skip blur; story beats; viewport/pacing; turnkey Playwright `recordVideo` snippet; where to drop the file).
+- Built + smoke-tested `scripts/process_recording.sh`: normalize→mp4, smart center-crop to 4:5 (1080×1350) + 1:1 (1080×1080); validated on the closing clip (outputs correct dims). PII region-blur recipe validated + templated (not auto — fill coords/timestamps from real footage).
+- Decisions captured: format **4:5**, data **real→blur** (but prefer demo if the app has it).
+- **Next turn:** app-dir Claude records → drops `.webm` in `matchmaker_content/raw/` → run `process_recording.sh` → caption + post.

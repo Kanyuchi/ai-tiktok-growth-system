@@ -3,11 +3,11 @@
 **Goal:** Drive the June 2–3 PoT Matchmaker launch — activate the 436 ticket-holders + convert prospects — via a LinkedIn + X countdown from launch (May 21) to the event.
 
 ## Now (≤5)
-1. **Ship today's X closing-clip post — caption A** (recommended). Post video with no link in the main tweet; put proofoftalk.io in the first reply. *Shaun posts (draft-mode).*
-2. **Confirm the re-baselined calendar** (`posts/calendar-rebaselined-2026-05-22.md`) and that Shaun's good to post from his personal account → unlocks Mon 25 (his hero video) + Wed 27 (carousel).
-3. **Launch 24h/72h numbers → paid-boost call.** LinkedIn/X impressions + CTR. Rule: ≥10k impr & ≥3% CTR (72h) → boost $500–1k. *Awaiting analytics from Shaun.*
-4. **Reply to launch comments.** Draft into `replies/queue-2026-05-22.md` → Shaun approves. *Awaiting launch post URL/comments.*
-5. **Live app captures** from meet.proofoftalk.io (needs Shaun logged in) → upgrade carousel slides 2–5 + add the Concierge slide. Also cut the `f_24s` crop for slide 3.
+1. **Record real-app walkthrough** (app-directory Claude, per `RECORDING-SPEC.md`) → drop `.webm` in `matchmaker_content/raw/`. *Shaun driving from the app repo.*
+2. **Process the recording** here: `scripts/process_recording.sh raw/<file>.webm matchmaker_walkthrough` → 4:5 + 1:1 cuts; blur PII first if real data. Then write the post caption.
+3. **Ship today's X closing-clip post — caption A** (recommended). No link in main tweet; proofoftalk.io in first reply. *Shaun posts (draft-mode).*
+4. **Confirm the re-baselined calendar** (`posts/calendar-rebaselined-2026-05-22.md`) + that Shaun posts from his personal account → unlocks Mon 25 (hero video) + Wed 27 (carousel/walkthrough).
+5. **Launch 24h/72h numbers → paid-boost call** + **reply to launch comments**. *Both awaiting the launch post URL/analytics from Shaun.*
 
 ## Soon
 - Pipeline upgrade decision after ~10 replies approved with minor edits (the gate).
@@ -31,3 +31,4 @@
 - Today's post drafted + caption A recommended.
 - **Carousel drafted** (`posts/carousel-app-walkthrough.md`) from existing frames.
 - **Countdown calendar re-baselined** to the actual May 21 launch (`posts/calendar-rebaselined-2026-05-22.md`).
+- **Recording pipeline ready:** `RECORDING-SPEC.md` handoff + `scripts/process_recording.sh` (smoke-tested: 4:5 + 1:1 crops, blur recipe validated).

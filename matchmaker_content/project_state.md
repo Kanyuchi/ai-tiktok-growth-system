@@ -15,6 +15,10 @@
 - Reply playbook + queue ready to run.
 - App-screens carousel drafted (`posts/carousel-app-walkthrough.md`) from existing frames — proof-it's-real content for Shaun's personal account.
 - Countdown calendar re-baselined to the actual May 21 launch (`posts/calendar-rebaselined-2026-05-22.md`) — one push/weekday, no dead zone.
+- **Real-app recording pipeline ready:** `RECORDING-SPEC.md` (handoff brief for the app-dir Claude) + `scripts/process_recording.sh` (normalize + smart-crop to 4:5/1:1 + blur template), smoke-tested on the closing clip.
+
+## Direction (2026-05-22, locked)
+- **Primary content = real app footage**, not recycled hero-film frames. Recorded in the **app directory** by the Claude that knows the app; **processed here** (crop/convert/blur/caption). Format 4:5 LinkedIn primary. Prefer demo/seeded data to avoid PII blur.
 
 ## Open / needs input
 - Launch analytics (impressions/CTR) — for the paid-boost decision.
